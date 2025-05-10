@@ -6,8 +6,9 @@ export default function LoginForm({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // Use email for both form and request payload
     const formData = new URLSearchParams();
-    formData.append("username", e.target.email.value);
+    formData.append("email", e.target.email.value); // Use email here
     formData.append("password", e.target.password.value);
 
     try {
@@ -38,4 +39,5 @@ export default function LoginForm({ onLogin }) {
     </form>
   );
 }
+
 
