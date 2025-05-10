@@ -1,0 +1,36 @@
+import { useState } from "react";
+
+export default function LoginForm({ onLogin }) {
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const formData = new URLSearchParams();
+    formData.append("username", e.target.email.value);
+    formData.append("password", e.target.password.value);
+
+    const res = await fetch("http://127.0.0.1:8000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString(),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      onLogin();
+    } else {
+      setError("Login failed");
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin} className="space-y-4 p-4 max-w-md mx-auto">
+      <input name="email" placeholder="Email" required className="input" />
+      <input name="password" type="password" placeholder="Password" required className="input" />
+      <button type="submit" className="btn">Login</button>
+      {error && <p className="text-red-500">{error}</p>}
+    </form>
+  );
+}
