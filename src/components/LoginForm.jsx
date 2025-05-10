@@ -7,7 +7,7 @@ export default function LoginForm({ onLogin }) {
     e.preventDefault();
 
     const formData = new URLSearchParams();
-    formData.append("username", e.target.email.value);
+    formData.append("email", e.target.email.value);  // Use "email" instead of "username"
     formData.append("password", e.target.password.value);
 
     try {
