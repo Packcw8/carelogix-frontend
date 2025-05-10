@@ -62,8 +62,18 @@ export default function LoginForm({ onLogin }) {
       </button>
 
       {error && <p className="text-red-500">{error}</p>}
+
+      <p className="mt-4 text-sm text-center">
+        Don't have an account?{" "}
+        <button
+          type="button"
+          onClick={() => navigate("/register")}
+          className="text-blue-600 underline"
+        >
+          Register here
+        </button>
+      </p>
     </form>
   );
 }
-
 
