@@ -10,18 +10,22 @@ export default function LoginForm({ onLogin }) {
     formData.append("username", e.target.email.value);
     formData.append("password", e.target.password.value);
 
-    const res = await fetch("http://127.0.0.1:8000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: formData.toString(),
-    });
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString(),
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      onLogin();
-    } else {
-      setError("Login failed");
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("token", data.access_token);
+        onLogin();
+      } else {
+        setError("Login failed");
+      }
+    } catch (err) {
+      setError("Error connecting to server.");
     }
   };
 
@@ -34,3 +38,4 @@ export default function LoginForm({ onLogin }) {
     </form>
   );
 }
+
