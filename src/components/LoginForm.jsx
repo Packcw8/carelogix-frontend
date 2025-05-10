@@ -7,7 +7,7 @@ export default function LoginForm({ onLogin }) {
     e.preventDefault();
 
     const formData = new URLSearchParams();
-    formData.append("email", e.target.email.value);  // Use "email" instead of "username"
+    formData.append("username", e.target.email.value);  // Pass email as username for OAuth2PasswordRequestForm
     formData.append("password", e.target.password.value);
 
     try {
@@ -38,4 +38,5 @@ export default function LoginForm({ onLogin }) {
     </form>
   );
 }
+
 
