@@ -1,7 +1,10 @@
 import React from "react";
-import Layout from "../Layout"; // ✅ adjust path if needed
+import { useNavigate } from "react-router-dom";
+import Layout from "../Layout"; // ✅ make sure this path is correct
 
-export default function Dashboard({ onStartVisitForm, onStartMainNoteForm, onLogout, onView }) {
+export default function Dashboard({ onLogout }) {
+  const navigate = useNavigate();
+
   return (
     <Layout title="CareLogix Dashboard">
       <h2 className="text-2xl font-bold mb-2">Welcome</h2>
@@ -9,21 +12,21 @@ export default function Dashboard({ onStartVisitForm, onStartMainNoteForm, onLog
 
       <div className="space-y-4">
         <button
-          onClick={onStartVisitForm}
+          onClick={() => navigate("/form/visit")}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
         >
           Start Supervised Visit Form
         </button>
 
         <button
-          onClick={onStartMainNoteForm}
+          onClick={() => navigate("/form/main_note")}
           className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
         >
           Start Main Note Form
         </button>
 
         <button
-          onClick={() => onView("myforms")}
+          onClick={() => navigate("/myforms")}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded"
         >
           View My Forms
@@ -39,5 +42,4 @@ export default function Dashboard({ onStartVisitForm, onStartMainNoteForm, onLog
     </Layout>
   );
 }
-
 
