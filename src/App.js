@@ -12,7 +12,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("auth_token"));
   const navigate = useNavigate();
 
-  // Sync login state on changes
   useEffect(() => {
     const handleStorageChange = () => {
       setIsLoggedIn(!!localStorage.getItem("auth_token"));
@@ -50,7 +49,7 @@ function App() {
             isLoggedIn ? (
               <>
                 <ProtectedPage />
-                <VisitForm />
+                <VisitForm onReturn={() => navigate("/dashboard")} />
               </>
             ) : (
               <Navigate to="/login" />
@@ -63,7 +62,7 @@ function App() {
             isLoggedIn ? (
               <>
                 <ProtectedPage />
-                <MainNoteForm />
+                <MainNoteForm onReturn={() => navigate("/dashboard")} />
               </>
             ) : (
               <Navigate to="/login" />
@@ -72,7 +71,7 @@ function App() {
         />
         <Route
           path="/myforms"
-          element={isLoggedIn ? <MyForms /> : <Navigate to="/login" />}
+          element={isLoggedIn ? <MyForms onReturn={() => navigate("/dashboard")} /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>
@@ -80,6 +79,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
