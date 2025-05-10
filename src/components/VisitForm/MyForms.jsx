@@ -3,16 +3,18 @@ import Layout from "../Layout"; // ✅ adjust path if needed
 
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+  const token = localStorage.getItem("auth_token");
 
   useEffect(() => {
     fetchForms();
   }, []);
 
   const fetchForms = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch("http://127.0.0.1:8000/forms/mine", {
+    const res = await fetch(`${apiUrl}/forms/mine`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
     if (res.ok) {
       const data = await res.json();
       setForms(data);
@@ -22,11 +24,10 @@ export default function MyForms({ onReturn }) {
   };
 
   const handleDelete = async (formId) => {
-    const token = localStorage.getItem("token");
     const confirmed = window.confirm("Are you sure you want to delete this form?");
     if (!confirmed) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/forms/${formId}`, {
+    const res = await fetch(`${apiUrl}/forms/${formId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -54,7 +55,7 @@ export default function MyForms({ onReturn }) {
       ) : (
         <ul className="space-y-4">
           {forms.map((form) => {
-            const fileName = form.file_path.split("\\").pop();
+            const fileName = form.file_path?.split(/[\\/]/).pop(); // Handles Windows + Unix slashes
             const safeName = (form.case_name || "case").replace(/[^a-z0-9]/gi, "_").toLowerCase();
             const safeDate = (form.service_date || "date").replace(/[^a-z0-9]/gi, "_").toLowerCase();
             const displayName = `${safeName}_${safeDate}.docx`;
@@ -69,13 +70,15 @@ export default function MyForms({ onReturn }) {
                 </div>
 
                 <div className="flex gap-4 mt-3 flex-wrap">
-                  <a
-                    href={`http://127.0.0.1:8000/generated_docs/${fileName}`}
-                    download={displayName}
-                    className="text-blue-600 underline"
-                  >
-                    Download
-                  </a>
+                  {fileName && (
+                    <a
+                      href={`${apiUrl}/generated_docs/${fileName}`}
+                      download={displayName}
+                      className="text-blue-600 underline"
+                    >
+                      Download
+                    </a>
+                  )}
                   <button
                     onClick={() => handleDelete(form.id)}
                     className="text-red-600 underline"
@@ -91,7 +94,6 @@ export default function MyForms({ onReturn }) {
     </Layout>
   );
 }
-
 
 
 

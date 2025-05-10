@@ -52,8 +52,6 @@ export default function MainNoteForm({ onReturn }) {
       ...formData,
       service_date: formattedDate,
       code: formData.code.join(", "),
-      case_name: formData.case_name,
-      case_number: formData.case_number,
     };
 
     const sTime = new Date(`1970-01-01T${formData.start_time}`);
@@ -66,7 +64,6 @@ export default function MainNoteForm({ onReturn }) {
 
     segments.forEach((seg, i) => {
       const idx = (i * 2) + 1;
-
       context[`location_${idx}`] = seg.from;
       context[`location_${idx + 1}`] = seg.to;
       context[`tt_starttime${idx}`] = seg.at_start_time;
@@ -89,8 +86,10 @@ export default function MainNoteForm({ onReturn }) {
     context["itt_units"] = totalITT.toString();
     context["miles"] = formData.miles || "0";
 
-    const token = localStorage.getItem("token");
-    const res = await fetch("http://127.0.0.1:8000/generate-doc", {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+    const token = localStorage.getItem("auth_token");
+
+    const res = await fetch(`${apiUrl}/generate-doc`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

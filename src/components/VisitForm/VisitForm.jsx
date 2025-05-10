@@ -82,8 +82,10 @@ export default function VisitForm({ onReturn }) {
       ...segmentFields,
     };
 
-    const token = localStorage.getItem("token");
-    const res = await fetch("http://127.0.0.1:8000/generate-doc", {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+    const token = localStorage.getItem("auth_token");
+
+    const res = await fetch(`${apiUrl}/generate-doc`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
