@@ -1,16 +1,15 @@
 import React, { useRef, useState } from "react";
 import SignaturePad from "react-signature-canvas";
 
-export default function SignatureSection({ formData, setFormData }) {
+export default function SignatureSection({ formData, setFormData, onBack, onSubmit }) {
   const sigCanvasRef = useRef(null);
   const [mode, setMode] = useState("draw"); // "draw" or "type"
-  const [typedSig, setTypedSig] = useState("");
+  const [typedSig, setTypedSig] = useState(formData.signature || "");
 
   const clear = () => {
-    if (sigCanvasRef.current) {
-      sigCanvasRef.current.clear();
-    }
+    if (sigCanvasRef.current) sigCanvasRef.current.clear();
     setFormData({ ...formData, signature: "" });
+    setTypedSig("");
   };
 
   const saveSignature = () => {
@@ -22,15 +21,29 @@ export default function SignatureSection({ formData, setFormData }) {
     }
   };
 
-  return (
-    <div className="my-6">
-      <h3 className="text-xl font-semibold mb-2">Signature</h3>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    saveSignature(); // Save first, then submit
+    onSubmit();      // Triggers DOCX generation
+  };
 
-      <div className="mb-4 space-x-4">
-        <button onClick={() => setMode("draw")} className={`px-4 py-2 rounded ${mode === "draw" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 className="text-xl font-semibold">Step 5: Signature</h2>
+
+      <div className="flex gap-4 mb-2">
+        <button
+          type="button"
+          onClick={() => setMode("draw")}
+          className={`px-4 py-2 rounded ${mode === "draw" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
           Draw
         </button>
-        <button onClick={() => setMode("type")} className={`px-4 py-2 rounded ${mode === "type" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
+        <button
+          type="button"
+          onClick={() => setMode("type")}
+          className={`px-4 py-2 rounded ${mode === "type" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
           Type
         </button>
       </div>
@@ -39,11 +52,11 @@ export default function SignatureSection({ formData, setFormData }) {
         <div>
           <SignaturePad
             ref={sigCanvasRef}
-            canvasProps={{ className: "border w-full h-32 bg-white" }}
+            canvasProps={{ className: "border w-full h-32 bg-white rounded" }}
           />
           <div className="mt-2 flex space-x-4">
-            <button onClick={clear} className="px-4 py-2 bg-red-500 text-white rounded">Clear</button>
-            <button onClick={saveSignature} className="px-4 py-2 bg-green-500 text-white rounded">Save</button>
+            <button type="button" onClick={clear} className="px-4 py-2 bg-red-500 text-white rounded">Clear</button>
+            <button type="button" onClick={saveSignature} className="px-4 py-2 bg-green-500 text-white rounded">Save</button>
           </div>
         </div>
       ) : (
@@ -55,7 +68,7 @@ export default function SignatureSection({ formData, setFormData }) {
             placeholder="Type your signature"
             className="border p-2 w-full italic text-blue-700 font-[cursive] text-lg"
           />
-          <button onClick={saveSignature} className="mt-2 px-4 py-2 bg-green-500 text-white rounded">Save</button>
+          <button type="button" onClick={saveSignature} className="mt-2 px-4 py-2 bg-green-500 text-white rounded">Save</button>
         </div>
       )}
 
@@ -69,6 +82,23 @@ export default function SignatureSection({ formData, setFormData }) {
           )}
         </div>
       )}
-    </div>
+
+      <div className="flex justify-between pt-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Generate Word Document
+        </button>
+      </div>
+    </form>
   );
 }
+
