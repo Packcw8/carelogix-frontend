@@ -25,6 +25,7 @@ export default function LoginForm({ onLogin }) {
 
       if (res.ok) {
         localStorage.setItem("auth_token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user)); // ✅ Store full user object
         if (onLogin) onLogin();
         navigate("/dashboard");
       } else {
