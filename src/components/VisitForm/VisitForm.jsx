@@ -6,6 +6,8 @@ import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import Layout from "../Layout"; // ✅ Adjust path if needed
+import Card from "../Card";
+
 
 export default function VisitForm({ onReturn }) {
   const [step, setStep] = useState(0);
