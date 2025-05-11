@@ -15,7 +15,7 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
     >
       <h2 className="text-xl font-semibold">Step 1: Case Information</h2>
 
-      {["case_name", "case_number", "service_date", "start_time", "stop_time", "location"].map((key) => (
+      {["case_name", "case_number", "client_number", "service_date", "start_time", "stop_time", "location"].map((key) => (
         <div key={key}>
           <label className="block font-medium capitalize">{key.replace(/_/g, " ")}</label>
           <input
@@ -37,3 +37,4 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
     </form>
   );
 }
+

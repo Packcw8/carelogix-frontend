@@ -14,6 +14,7 @@ export default function VisitForm({ onReturn }) {
   const [formData, setFormData] = useState({
     case_name: "",
     case_number: "",
+    client_number:"",
     service_date: "",
     start_time: "",
     stop_time: "",

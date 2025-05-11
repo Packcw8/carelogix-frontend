@@ -66,6 +66,7 @@ export default function InvoiceTable() {
               <th className="p-2 border">Service</th>
               <th className="p-2 border">Code</th>
               <th className="p-2 border">Case #</th>
+              <th className="p-2 border">Client #</th> {/* ✅ New */}
               <th className="p-2 border">Units</th>
               <th className="p-2 border">Rate</th>
               <th className="p-2 border">Total</th>
@@ -78,6 +79,7 @@ export default function InvoiceTable() {
                 <td className="p-2 border">{row.service}</td>
                 <td className="p-2 border">{row.service_code}</td>
                 <td className="p-2 border">{row.case_number}</td>
+                <td className="p-2 border">{row.client_number}</td> {/* ✅ New */}
                 <td className="p-2 border">
                   <input
                     type="number"
@@ -98,7 +100,7 @@ export default function InvoiceTable() {
               </tr>
             ))}
             <tr className="bg-gray-100 font-semibold">
-              <td colSpan="6" className="p-2 text-right border">Total:</td>
+              <td colSpan="7" className="p-2 text-right border">Total:</td>
               <td className="p-2 border text-right">${totalSum.toFixed(2)}</td>
             </tr>
           </tbody>
