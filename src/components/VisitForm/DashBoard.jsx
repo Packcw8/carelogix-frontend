@@ -4,9 +4,10 @@ import Layout from "../Layout";
 
 export default function Dashboard({ onLogout }) {
   const navigate = useNavigate();
+  const agencyName = user?.agency?.name || "CareLogix";
 
   return (
-    <Layout title="CareLogix Dashboard">
+    title={`${agencyName} Dashboard`}
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           Welcome to CareLogix
