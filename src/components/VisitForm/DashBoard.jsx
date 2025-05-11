@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../Layout";
+import Card from "../components/Card";
 
 export default function Dashboard({ onLogout, user }) {
   const navigate = useNavigate();
