@@ -7,7 +7,7 @@ import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import Layout from "../Layout";
 import Card from "../Card";
-import { submitForm } from "../../utils/submitForm"; // ✅ Adjust path if needed
+import { submitForm } from "./submitForm"; // ✅ Adjust path if needed
 
 export default function VisitForm({ onReturn }) {
   const [step, setStep] = useState(0);

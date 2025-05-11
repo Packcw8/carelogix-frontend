@@ -5,7 +5,7 @@ import ServiceCodes from "./ServiceCodes";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import Layout from "../Layout";
-import { submitForm } from "../../utils/submitForm"; // ✅ Make sure the path is correct
+import { submitForm } from "./utils/submitForm"; // ✅ Make sure the path is correct
 
 export default function MainNoteForm({ onReturn }) {
   const [step, setStep] = useState(0);
