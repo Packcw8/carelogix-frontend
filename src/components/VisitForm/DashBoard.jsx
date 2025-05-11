@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../Layout";
-import Card from "../Card"; // ✅ new import
+import Card from "../Card";
 
 export default function Dashboard({ onLogout, user }) {
   const navigate = useNavigate();
@@ -37,6 +37,15 @@ export default function Dashboard({ onLogout, user }) {
             description="View past submissions"
             onClick={() => navigate("/myforms")}
           />
+          {user?.is_admin && (
+            <Card
+              icon="🛠️"
+              title="Admin Panel"
+              description="Manage users and referrals"
+              onClick={() => navigate("/admin")}
+              background="bg-yellow-100"
+            />
+          )}
           <Card
             icon="🚪"
             title="Logout"
