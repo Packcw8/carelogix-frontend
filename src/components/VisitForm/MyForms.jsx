@@ -4,6 +4,7 @@ import Layout from "../Layout";
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
   const token = localStorage.getItem("auth_token");
 
@@ -40,24 +41,25 @@ export default function MyForms({ onReturn }) {
     }
   };
 
-  const getWeekKey = (dateStr) => {
-    if (!dateStr) return "Unknown Week";
+  const getWeekRange = (dateStr) => {
     const date = new Date(dateStr);
     const day = date.getDay();
     const offset = (day < 5 ? -((day + 2) % 7) : 5); // Friday is 5
-    const weekStart = new Date(date);
-    weekStart.setDate(date.getDate() - offset);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    return `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+    const start = new Date(date);
+    start.setDate(date.getDate() - offset);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return [start, end];
   };
 
-  const groupedForms = forms.reduce((acc, form) => {
-    const week = getWeekKey(form.service_date);
-    if (!acc[week]) acc[week] = [];
-    acc[week].push(form);
-    return acc;
-  }, {});
+  const isInSelectedWeek = (formDate) => {
+    if (!formDate) return false;
+    const [start, end] = getWeekRange(filterDate);
+    const d = new Date(formDate);
+    return d >= start && d <= end;
+  };
+
+  const filteredForms = forms.filter((form) => isInSelectedWeek(form.service_date));
 
   return (
     <Layout title="My Submitted Forms">
@@ -70,57 +72,62 @@ export default function MyForms({ onReturn }) {
         </button>
       )}
 
-      {Object.keys(groupedForms).length === 0 ? (
-        <p className="text-gray-600">No forms found.</p>
+      <div className="mb-4">
+        <label className="block font-semibold mb-1 text-gray-700">Select a date to view that week’s forms:</label>
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="border p-2 rounded w-full max-w-xs"
+        />
+      </div>
+
+      {filteredForms.length === 0 ? (
+        <p className="text-gray-600">No forms found for this week.</p>
       ) : (
-        Object.entries(groupedForms).map(([week, weekForms]) => (
-          <div key={week} className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-blue-700">{week}</h3>
-            <ul className="space-y-4">
-              {weekForms.map((form) => {
-                const fileName = form.file_path?.split(/[\\/]/).pop();
-                const safeName = (form.case_name || "case").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-                const safeDate = (form.service_date || "date").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-                const displayName = `${safeName}_${safeDate}.docx`;
+        <ul className="space-y-4">
+          {filteredForms.map((form) => {
+            const fileName = form.file_path?.split(/[\\/]/).pop();
+            const safeName = (form.case_name || "case").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+            const safeDate = (form.service_date || "date").replace(/[^a-z0-9]/gi, "_").toLowerCase();
+            const displayName = `${safeName}_${safeDate}.docx`;
 
-                return (
-                  <li key={form.id} className="border rounded p-4 bg-white shadow">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
-                      <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
-                      <p><strong>Type:</strong> {form.form_type}</p>
-                      <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
-                    </div>
+            return (
+              <li key={form.id} className="border rounded p-4 bg-white shadow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
+                  <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
+                  <p><strong>Type:</strong> {form.form_type}</p>
+                  <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
+                </div>
 
-                    <div className="flex gap-4 mt-3 flex-wrap">
-                      {fileName && (
-                        <a
-                          href={`${apiUrl}/generated_docs/${fileName}`}
-                          download={displayName}
-                          className="text-blue-600 underline"
-                        >
-                          Download
-                        </a>
-                      )}
-                      <button
-                        onClick={() => setSelectedForm(form)}
-                        className="text-green-600 underline"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => handleDelete(form.id)}
-                        className="text-red-600 underline"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))
+                <div className="flex gap-4 mt-3 flex-wrap">
+                  {fileName && (
+                    <a
+                      href={`${apiUrl}/generated_docs/${fileName}`}
+                      download={displayName}
+                      className="text-blue-600 underline"
+                    >
+                      Download
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedForm(form)}
+                    className="text-green-600 underline"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleDelete(form.id)}
+                    className="text-red-600 underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       {selectedForm && (
@@ -144,8 +151,3 @@ export default function MyForms({ onReturn }) {
     </Layout>
   );
 }
-
-
-
-
-
