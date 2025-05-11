@@ -37,6 +37,13 @@ export default function Dashboard({ onLogout, user }) {
             description="View past submissions"
             onClick={() => navigate("/myforms")}
           />
+          <Card
+            icon="💵"
+            title="Invoices"
+            description="View weekly billing summary"
+            onClick={() => navigate("/invoice")}
+            background="bg-green-100"
+          />
           {user?.is_admin && (
             <Card
               icon="🛠️"

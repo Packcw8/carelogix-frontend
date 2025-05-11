@@ -7,7 +7,8 @@ import VisitForm from "./components/VisitForm/VisitForm";
 import MainNoteForm from "./components/VisitForm/MainNoteForm";
 import MyForms from "./components/VisitForm/MyForms";
 import ProtectedPage from "./components/ProtectedPage";
-import AdminDashboard from "./components/Admin/AdminDashboard"; // ✅ updated import
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import InvoiceTable from "./components/Invoice/InvoiceTable"; // ✅ New import
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -111,6 +112,16 @@ function App() {
             )
           }
         />
+        <Route
+          path="/invoice"
+          element={
+            isLoggedIn ? (
+              <InvoiceTable />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
@@ -118,6 +129,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
