@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../Layout";
-import Card from "../components/Card";
+import Card from "../components/Card"; // ✅ new import
 
 export default function Dashboard({ onLogout, user }) {
   const navigate = useNavigate();
@@ -47,20 +47,5 @@ export default function Dashboard({ onLogout, user }) {
         </div>
       </div>
     </Layout>
-  );
-}
-
-function Card({ icon, title, description, onClick, background }) {
-  return (
-    <div
-      onClick={onClick}
-      className={`cursor-pointer flex items-center space-x-4 p-6 ${background || "bg-white"} shadow-md rounded-xl hover:shadow-xl transition-all`}
-    >
-      <div className="text-3xl">{icon}</div>
-      <div>
-        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
-      </div>
-    </div>
   );
 }
