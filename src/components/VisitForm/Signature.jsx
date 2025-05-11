@@ -64,7 +64,25 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
             canvasProps={{ className: "border w-full h-32 bg-white rounded" }}
           />
           <div className="mt-2 flex gap-3">
-            <button type="button" onClick={clear} className="bg-red-500 text-white px-4 py-1 rounded">Clear</button>
+            <button
+              type="button"
+              onClick={clear}
+              className="bg-red-500 text-white px-4 py-1 rounded"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (sigCanvasRef.current && typeof sigCanvasRef.current.getTrimmedCanvas === "function") {
+                  const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
+                  setFormData({ ...formData, signature: dataURL });
+                }
+              }}
+              className="bg-green-500 text-white px-4 py-1 rounded"
+            >
+              Save
+            </button>
           </div>
         </div>
       ) : (
