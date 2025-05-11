@@ -44,6 +44,13 @@ export default function Dashboard({ onLogout, user }) {
             onClick={() => navigate("/invoice")}
             background="bg-green-100"
           />
+          <Card
+            icon="👤"
+            title="Manage Clients"
+            description="Add or remove clients"
+            onClick={() => navigate("/clients")}
+            background="bg-blue-100"
+          />
           {user?.is_admin && (
             <Card
               icon="🛠️"
@@ -65,3 +72,4 @@ export default function Dashboard({ onLogout, user }) {
     </Layout>
   );
 }
+
