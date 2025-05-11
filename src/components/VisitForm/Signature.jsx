@@ -19,14 +19,9 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
 
     let updatedData = { ...formData };
 
-    if (mode === "draw" && sigCanvasRef.current) {
-      if (typeof sigCanvasRef.current.getTrimmedCanvas === "function") {
-        const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
-        updatedData.signature = dataURL;
-      } else {
-        console.warn("🛑 SignaturePad not ready or incompatible.");
-        updatedData.signature = "";
-      }
+    if (mode === "draw" && sigCanvasRef.current && typeof sigCanvasRef.current.getTrimmedCanvas === "function") {
+      const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
+      updatedData.signature = dataURL;
     } else if (mode === "type") {
       updatedData.signature = typedSig;
     }
@@ -70,18 +65,6 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
               className="bg-red-500 text-white px-4 py-1 rounded"
             >
               Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (sigCanvasRef.current && typeof sigCanvasRef.current.getTrimmedCanvas === "function") {
-                  const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
-                  setFormData({ ...formData, signature: dataURL });
-                }
-              }}
-              className="bg-green-500 text-white px-4 py-1 rounded"
-            >
-              Save
             </button>
           </div>
         </div>
