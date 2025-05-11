@@ -2,15 +2,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../Layout";
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, user }) {
   const navigate = useNavigate();
   const agencyName = user?.agency?.name || "CareLogix";
 
   return (
-    title={`${agencyName} Dashboard`}
+    <Layout title={`${agencyName} Dashboard`}>
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
-          Welcome to CareLogix
+          Welcome to {agencyName}
         </h2>
         <p className="text-center text-gray-500 mb-6">
           What would you like to do?
