@@ -19,7 +19,7 @@ export async function submitForm({ formData, segments, templateName, formType })
     context["units"] = durationUnits.toString();
   }
 
-  // Segment handling
+  // Travel Segment handling
   let totalTT = 0;
   let totalITT = 0;
 
@@ -47,6 +47,7 @@ export async function submitForm({ formData, segments, templateName, formType })
   context["itt_units"] = totalITT.toString();
   context["miles"] = formData.miles || "0";
 
+  // Submit to backend
   const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
   const token = localStorage.getItem("auth_token");
 
@@ -68,15 +69,12 @@ export async function submitForm({ formData, segments, templateName, formType })
     return;
   }
 
-  const blob = await res.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
+  const data = await res.json();
 
-  const safeName = formData.case_name.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  const safeDate = formattedDate.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  a.download = `${safeName}_${safeDate}.docx`;
-
-  a.click();
-  window.URL.revokeObjectURL(url);
+  if (data.download_url) {
+    window.open(data.download_url, "_blank");
+  } else {
+    alert("❌ Document created, but download URL missing.");
+    console.error(data);
+  }
 }

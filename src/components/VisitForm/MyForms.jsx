@@ -104,8 +104,9 @@ export default function MyForms({ onReturn }) {
                 <div className="flex gap-4 mt-3 flex-wrap">
                   {fileName && (
                     <a
-                      href={`${apiUrl}/generated_docs/${fileName}`}
-                      download={displayName}
+                      href={`https://carelogix-docs.s3.us-east-2.amazonaws.com/${fileName}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-blue-600 underline"
                     >
                       Download
