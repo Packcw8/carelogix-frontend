@@ -17,17 +17,22 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Build signature into a new object before submitting
     let updatedData = { ...formData };
+
     if (mode === "draw" && sigCanvasRef.current) {
-      const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
-      updatedData.signature = dataURL;
+      if (typeof sigCanvasRef.current.getTrimmedCanvas === "function") {
+        const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
+        updatedData.signature = dataURL;
+      } else {
+        console.warn("🛑 SignaturePad not ready or incompatible.");
+        updatedData.signature = "";
+      }
     } else if (mode === "type") {
       updatedData.signature = typedSig;
     }
 
-    setFormData(updatedData);  // Update React state
-    onSubmit(updatedData);     // Submit with correct signature included
+    setFormData(updatedData);
+    onSubmit(updatedData);
   };
 
   return (
@@ -97,5 +102,6 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
     </form>
   );
 }
+
 
 
