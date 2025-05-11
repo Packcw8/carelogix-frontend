@@ -14,19 +14,20 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
     setTypedSig("");
   };
 
-  const saveSignature = () => {
-    if (mode === "draw" && sigCanvasRef.current) {
-      const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
-      setFormData({ ...formData, signature: dataURL });
-    } else if (mode === "type") {
-      setFormData({ ...formData, signature: typedSig });
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    saveSignature();
-    onSubmit(); // triggers Word document generation
+
+    // Build signature into a new object before submitting
+    let updatedData = { ...formData };
+    if (mode === "draw" && sigCanvasRef.current) {
+      const dataURL = sigCanvasRef.current.getTrimmedCanvas().toDataURL("image/png");
+      updatedData.signature = dataURL;
+    } else if (mode === "type") {
+      updatedData.signature = typedSig;
+    }
+
+    setFormData(updatedData);  // Update React state
+    onSubmit(updatedData);     // Submit with correct signature included
   };
 
   return (
@@ -59,7 +60,6 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
           />
           <div className="mt-2 flex gap-3">
             <button type="button" onClick={clear} className="bg-red-500 text-white px-4 py-1 rounded">Clear</button>
-            <button type="button" onClick={saveSignature} className="bg-green-500 text-white px-4 py-1 rounded">Save</button>
           </div>
         </div>
       ) : (
@@ -72,7 +72,6 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
             placeholder="Enter your full name or initials"
             className="border p-2 w-full italic text-blue-700 font-[cursive] text-lg"
           />
-          <button type="button" onClick={saveSignature} className="mt-2 px-4 py-2 bg-green-500 text-white rounded">Save</button>
         </div>
       )}
 
@@ -98,4 +97,5 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
     </form>
   );
 }
+
 
