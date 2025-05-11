@@ -7,6 +7,7 @@ import VisitForm from "./components/VisitForm/VisitForm";
 import MainNoteForm from "./components/VisitForm/MainNoteForm";
 import MyForms from "./components/VisitForm/MyForms";
 import ProtectedPage from "./components/ProtectedPage";
+import AdminDashboard from "./components/Admin/AdminDashboard"; // ✅ updated import
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -59,6 +60,16 @@ function App() {
           element={
             isLoggedIn ? (
               <Dashboard onLogout={handleLogout} user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            isLoggedIn ? (
+              <AdminDashboard onLogout={handleLogout} user={user} />
             ) : (
               <Navigate to="/login" />
             )
