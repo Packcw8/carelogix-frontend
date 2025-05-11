@@ -12,6 +12,12 @@ export default function Dashboard({ onLogout, user }) {
         <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center text-gray-800">
           Welcome to {agencyName}
         </h2>
+
+        {/* ✅ TAILWIND STYLE TEST */}
+        <p className="text-center text-red-500 font-bold text-lg mb-4">
+          ✅ If this text is red and bold, Tailwind is working!
+        </p>
+
         <p className="text-center text-gray-500 mb-6 text-sm sm:text-base">
           What would you like to do?
         </p>
@@ -49,4 +55,3 @@ export default function Dashboard({ onLogout, user }) {
     </Layout>
   );
 }
-
