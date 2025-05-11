@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../Layout";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
@@ -44,7 +47,7 @@ export default function MyForms({ onReturn }) {
   const getWeekRange = (dateStr) => {
     const date = new Date(dateStr);
     const day = date.getDay();
-    const offset = (day < 5 ? -((day + 2) % 7) : 5); // Friday is 5
+    const offset = (day < 5 ? -((day + 2) % 7) : 5);
     const start = new Date(date);
     start.setDate(date.getDate() - offset);
     const end = new Date(start);
@@ -133,11 +136,15 @@ export default function MyForms({ onReturn }) {
 
       {selectedForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-2xl w-full overflow-auto max-h-[90vh]">
-            <h2 className="text-lg font-bold mb-2">Form Preview</h2>
-            <pre className="text-sm whitespace-pre-wrap break-words bg-gray-100 p-4 rounded max-h-[70vh] overflow-auto">
-              {JSON.stringify(selectedForm.context, null, 2)}
-            </pre>
+          <div className="bg-white p-6 rounded shadow max-w-3xl w-full overflow-auto max-h-[90vh]">
+            <h2 className="text-lg font-bold mb-4">Form Preview</h2>
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+              <div className="h-[70vh] overflow-auto border rounded">
+                <Viewer
+                  fileUrl={`https://carelogix-docs.s3.us-east-2.amazonaws.com/${selectedForm.file_path.replace(".docx", ".pdf")}`}
+                />
+              </div>
+            </Worker>
             <div className="mt-4 text-right">
               <button
                 onClick={() => setSelectedForm(null)}
