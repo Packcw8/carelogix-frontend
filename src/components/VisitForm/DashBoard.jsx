@@ -1,43 +1,49 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../Layout"; // ✅ make sure this path is correct
+import Layout from "../Layout";
 
 export default function Dashboard({ onLogout }) {
   const navigate = useNavigate();
 
   return (
     <Layout title="CareLogix Dashboard">
-      <h2 className="text-2xl font-bold mb-2">Welcome</h2>
-      <p className="text-gray-600 mb-6">What would you like to do?</p>
+      <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
+          Welcome to CareLogix
+        </h2>
+        <p className="text-center text-gray-500 mb-6">
+          What would you like to do?
+        </p>
 
-      <div className="space-y-4">
-        <button
-          onClick={() => navigate("/form/visit")}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
-        >
-          Start Supervised Visit Form
-        </button>
+        <div className="space-y-4">
+          <button
+            onClick={() => navigate("/form/visit")}
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
+          >
+            🧾 Start Supervised Visit Form
+          </button>
 
-        <button
-          onClick={() => navigate("/form/main_note")}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
-        >
-          Start Main Note Form
-        </button>
+          <button
+            onClick={() => navigate("/form/main_note")}
+            className="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
+          >
+            📝 Start Main Note Form
+          </button>
 
-        <button
-          onClick={() => navigate("/myforms")}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded"
-        >
-          View My Forms
-        </button>
+          <button
+            onClick={() => navigate("/myforms")}
+            className="w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
+          >
+            📂 View My Forms
+          </button>
 
-        <button
-          onClick={onLogout}
-          className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded"
-        >
-          Logout
-        </button>
+          <button
+            onClick={onLogout}
+            className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
+          >
+            🚪 Logout
+          </button>
+        </div>
       </div>
     </Layout>
   );
