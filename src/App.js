@@ -9,12 +9,12 @@ import MyForms from "./components/VisitForm/MyForms";
 import ProtectedPage from "./components/ProtectedPage";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("auth_token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("auth_token"));
+      setIsLoggedIn(!!localStorage.getItem("token"));
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -22,7 +22,7 @@ function App() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
     navigate("/login");
   };
@@ -41,7 +41,13 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route
           path="/dashboard"
-          element={isLoggedIn ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <Dashboard onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/form/visit"
@@ -71,8 +77,15 @@ function App() {
         />
         <Route
           path="/myforms"
-          element={isLoggedIn ? <MyForms onReturn={() => navigate("/dashboard")} /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <MyForms onReturn={() => navigate("/dashboard")} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
   );
