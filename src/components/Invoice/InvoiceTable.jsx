@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
 
 export default function InvoiceTable() {
   const [invoiceData, setInvoiceData] = useState([]);
@@ -38,11 +39,18 @@ export default function InvoiceTable() {
 
   const totalSum = invoiceData.reduce((sum, row) => sum + (row.total || 0), 0);
 
+  const downloadExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(invoiceData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Invoice");
+    XLSX.writeFile(workbook, `invoice_${weekStart}.xlsx`);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Weekly Invoice</h2>
 
-      <div className="mb-4 flex items-center justify-center gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <label className="font-medium">Week of:</label>
         <input
           type="date"
@@ -56,6 +64,12 @@ export default function InvoiceTable() {
         >
           Refresh
         </button>
+        <button
+          onClick={downloadExcel}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          Download Excel
+        </button>
       </div>
 
       <div className="overflow-x-auto border rounded-lg shadow-sm">
@@ -66,7 +80,7 @@ export default function InvoiceTable() {
               <th className="p-2 border">Service</th>
               <th className="p-2 border">Code</th>
               <th className="p-2 border">Case #</th>
-              <th className="p-2 border">Client #</th> {/* ✅ New */}
+              <th className="p-2 border">Client #</th>
               <th className="p-2 border">Units</th>
               <th className="p-2 border">Rate</th>
               <th className="p-2 border">Total</th>
@@ -79,7 +93,7 @@ export default function InvoiceTable() {
                 <td className="p-2 border">{row.service}</td>
                 <td className="p-2 border">{row.service_code}</td>
                 <td className="p-2 border">{row.case_number}</td>
-                <td className="p-2 border">{row.client_number}</td> {/* ✅ New */}
+                <td className="p-2 border">{row.client_number}</td>
                 <td className="p-2 border">
                   <input
                     type="number"
