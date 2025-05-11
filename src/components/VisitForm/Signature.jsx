@@ -3,8 +3,10 @@ import SignaturePad from "react-signature-canvas";
 
 export default function SignatureSection({ formData, setFormData, onBack, onSubmit }) {
   const sigCanvasRef = useRef(null);
-  const [mode, setMode] = useState("draw"); // "draw" or "type"
-  const [typedSig, setTypedSig] = useState(formData.signature || "");
+  const [mode, setMode] = useState(formData.signature?.startsWith("data:image") ? "draw" : "type");
+  const [typedSig, setTypedSig] = useState(
+    formData.signature?.startsWith("data:image") ? "" : formData.signature || ""
+  );
 
   const clear = () => {
     if (sigCanvasRef.current) sigCanvasRef.current.clear();
@@ -23,15 +25,15 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    saveSignature(); // Save first, then submit
-    onSubmit();      // Triggers DOCX generation
+    saveSignature();
+    onSubmit(); // triggers Word document generation
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h2 className="text-xl font-semibold">Step 5: Signature</h2>
 
-      <div className="flex gap-4 mb-2">
+      <div className="flex gap-4">
         <button
           type="button"
           onClick={() => setMode("draw")}
@@ -50,22 +52,24 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
 
       {mode === "draw" ? (
         <div>
+          <label className="block font-medium mb-1">Draw Signature</label>
           <SignaturePad
             ref={sigCanvasRef}
             canvasProps={{ className: "border w-full h-32 bg-white rounded" }}
           />
-          <div className="mt-2 flex space-x-4">
-            <button type="button" onClick={clear} className="px-4 py-2 bg-red-500 text-white rounded">Clear</button>
-            <button type="button" onClick={saveSignature} className="px-4 py-2 bg-green-500 text-white rounded">Save</button>
+          <div className="mt-2 flex gap-3">
+            <button type="button" onClick={clear} className="bg-red-500 text-white px-4 py-1 rounded">Clear</button>
+            <button type="button" onClick={saveSignature} className="bg-green-500 text-white px-4 py-1 rounded">Save</button>
           </div>
         </div>
       ) : (
         <div>
+          <label className="block font-medium mb-1">Typed Signature</label>
           <input
             type="text"
             value={typedSig}
             onChange={(e) => setTypedSig(e.target.value)}
-            placeholder="Type your signature"
+            placeholder="Enter your full name or initials"
             className="border p-2 w-full italic text-blue-700 font-[cursive] text-lg"
           />
           <button type="button" onClick={saveSignature} className="mt-2 px-4 py-2 bg-green-500 text-white rounded">Save</button>
@@ -74,9 +78,9 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
 
       {formData.signature && (
         <div className="mt-4">
-          <h4 className="font-semibold mb-1">Saved Signature Preview:</h4>
+          <label className="block font-semibold mb-1">Saved Signature Preview:</label>
           {formData.signature.startsWith("data:image") ? (
-            <img src={formData.signature} alt="Saved Signature" className="border h-20" />
+            <img src={formData.signature} alt="Signature" className="border h-20" />
           ) : (
             <div className="italic text-blue-700 text-lg font-[cursive]">{formData.signature}</div>
           )}
@@ -84,17 +88,10 @@ export default function SignatureSection({ formData, setFormData, onBack, onSubm
       )}
 
       <div className="flex justify-between pt-4">
-        <button
-          type="button"
-          onClick={onBack}
-          className="bg-gray-400 text-white px-4 py-2 rounded"
-        >
+        <button type="button" onClick={onBack} className="bg-gray-400 text-white px-4 py-2 rounded">
           Back
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Generate Word Document
         </button>
       </div>
