@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 
 export default function InvoiceTable() {
   const [invoiceData, setInvoiceData] = useState([]);
   const [weekStart, setWeekStart] = useState(() => {
     const today = new Date();
-    const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    return monday.toISOString().split("T")[0];
+    const friday = new Date(today.setDate(today.getDate() - ((today.getDay() + 1) % 7)));
+    return friday.toISOString().split("T")[0];
   });
+
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchInvoice = async () => {
     const token = localStorage.getItem("auth_token");
@@ -40,14 +44,53 @@ export default function InvoiceTable() {
   const totalSum = invoiceData.reduce((sum, row) => sum + (row.total || 0), 0);
 
   const downloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(invoiceData);
+    const fullName = user?.full_name || "Unknown";
+    const agency = user?.agency?.name || "Unknown Agency";
+
+    const start = new Date(weekStart);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    const formatDate = (date) =>
+      date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+    const payrollRange = `${formatDate(start)} – ${formatDate(end)}`;
+
+    const header = [
+      ["Provider:", fullName],
+      ["Agency:", agency],
+      ["Payroll Period:", payrollRange],
+      [],
+      ["Client", "Service", "Code", "Case #", "Client #", "Units", "Rate", "Total"],
+    ];
+
+    const rows = invoiceData.map((row) => [
+      row.client_name,
+      row.service,
+      row.service_code,
+      row.case_number,
+      row.client_number,
+      row.units,
+      row.rate,
+      row.total,
+    ]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet([...header, ...rows]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Invoice");
+
     XLSX.writeFile(workbook, `invoice_${weekStart}.xlsx`);
   };
 
   return (
     <div className="max-w-6xl mx-auto p-4">
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+      >
+        ← Back to Dashboard
+      </button>
+
       <h2 className="text-2xl font-bold mb-4 text-center">Weekly Invoice</h2>
 
       <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
@@ -123,3 +166,4 @@ export default function InvoiceTable() {
     </div>
   );
 }
+
