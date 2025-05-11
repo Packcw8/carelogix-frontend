@@ -10,11 +10,16 @@ import ProtectedPage from "./components/ProtectedPage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [user, setUser] = useState(
+    localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleStorageChange = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
+      const storedUser = localStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -23,7 +28,9 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setUser(null);
     navigate("/login");
   };
 
@@ -36,14 +43,22 @@ function App() {
         />
         <Route
           path="/login"
-          element={<LoginForm onLogin={() => setIsLoggedIn(true)} />}
+          element={
+            <LoginForm
+              onLogin={() => {
+                setIsLoggedIn(true);
+                const storedUser = localStorage.getItem("user");
+                setUser(storedUser ? JSON.parse(storedUser) : null);
+              }}
+            />
+          }
         />
         <Route path="/register" element={<RegisterForm />} />
         <Route
           path="/dashboard"
           element={
             isLoggedIn ? (
-              <Dashboard onLogout={handleLogout} />
+              <Dashboard onLogout={handleLogout} user={user} />
             ) : (
               <Navigate to="/login" />
             )
@@ -92,6 +107,8 @@ function App() {
 }
 
 export default App;
+
+
 
 
 
