@@ -8,45 +8,58 @@ export default function Dashboard({ onLogout, user }) {
 
   return (
     <Layout user={user}>
-      <div className="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200 mt-6">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center text-gray-800">
+      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-10">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Welcome to {agencyName}
         </h2>
 
-        <p className="text-center text-gray-500 mb-6 text-sm sm:text-base">
+        <p className="text-center text-gray-500 mb-10 text-sm sm:text-base">
           What would you like to do?
         </p>
 
-        <div className="space-y-4">
-          <button
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Card
+            icon="🧾"
+            title="Supervised Visit"
+            description="Start visit form"
             onClick={() => navigate("/form/visit")}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
-          >
-            🧾 Start Supervised Visit Form
-          </button>
-
-          <button
+          />
+          <Card
+            icon="📝"
+            title="Main Note"
+            description="Start main note"
             onClick={() => navigate("/form/main_note")}
-            className="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
-          >
-            📝 Start Main Note Form
-          </button>
-
-          <button
+          />
+          <Card
+            icon="📂"
+            title="My Forms"
+            description="View past submissions"
             onClick={() => navigate("/myforms")}
-            className="w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
-          >
-            📂 View My Forms
-          </button>
-
-          <button
+          />
+          <Card
+            icon="🚪"
+            title="Logout"
+            description="Sign out of your account"
             onClick={onLogout}
-            className="w-full bg-gray-400 hover:bg-gray-500 text-white font-semibold px-5 py-3 rounded-xl shadow-md transition-all"
-          >
-            🚪 Logout
-          </button>
+            background="bg-gray-100"
+          />
         </div>
       </div>
     </Layout>
+  );
+}
+
+function Card({ icon, title, description, onClick, background }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`cursor-pointer flex items-center space-x-4 p-6 ${background || "bg-white"} shadow-md rounded-xl hover:shadow-xl transition-all`}
+    >
+      <div className="text-3xl">{icon}</div>
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+    </div>
   );
 }
