@@ -7,12 +7,12 @@ export default function Dashboard({ onLogout, user }) {
   const agencyName = user?.agency?.name || "CareLogix";
 
   return (
-    <Layout title={`${agencyName} Dashboard`}>
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
+    <Layout user={user}>
+      <div className="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200 mt-6">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center text-gray-800">
           Welcome to {agencyName}
         </h2>
-        <p className="text-center text-gray-500 mb-6">
+        <p className="text-center text-gray-500 mb-6 text-sm sm:text-base">
           What would you like to do?
         </p>
 
