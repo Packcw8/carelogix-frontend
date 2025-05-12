@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../Layout";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import PDFModal from "../components/PDFModal";
 
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
@@ -12,12 +10,10 @@ export default function MyForms({ onReturn }) {
   const [filterType, setFilterType] = useState("week");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchTriggered, setSearchTriggered] = useState(false);
-  const [printQueue, setPrintQueue] = useState([]);
-  const [printPreviewUrl, setPrintPreviewUrl] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    console.error("❌ REACT_APP_API_URL is not defined.");
     throw new Error("REACT_APP_API_URL is missing.");
   }
 
@@ -74,7 +70,7 @@ export default function MyForms({ onReturn }) {
     } else if (filterType === "month") {
       return d.getMonth() === selected.getMonth();
     }
-    return true; // Allow all if no match
+    return true;
   };
 
   const filteredForms = forms.filter((form) => {
@@ -105,22 +101,8 @@ export default function MyForms({ onReturn }) {
       alert("Selected forms do not have valid PDF links.");
       return;
     }
-    setPrintQueue(queue);
-    setPrintPreviewUrl(queue[0].download_url_pdf);
-  };
-
-  const handleClosePreview = () => {
-    const remaining = [...printQueue];
-    remaining.shift();
-    if (remaining.length > 0) {
-      setPrintQueue(remaining);
-      setPrintPreviewUrl(remaining[0].download_url_pdf);
-      setTimeout(() => window.print(), 500);
-    } else {
-      setPrintQueue([]);
-      setPrintPreviewUrl(null);
-      setTimeout(() => window.print(), 500);
-    }
+    // Open first selected PDF in new tab for printing
+    window.open(queue[0].download_url_pdf, "_blank");
   };
 
   return (
@@ -202,7 +184,6 @@ export default function MyForms({ onReturn }) {
                   <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
                   <p><strong>Type:</strong> {form.form_type}</p>
                   <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
-                  {/* ✅ PDF Debug Line */}
                   <p className={`text-sm ${form.download_url_pdf ? "text-green-600" : "text-red-600"}`}>
                     <strong>PDF URL Exists:</strong> {form.download_url_pdf ? "✅" : "❌"}
                   </p>
@@ -246,51 +227,12 @@ export default function MyForms({ onReturn }) {
         </ul>
       )}
 
-      {printPreviewUrl && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-3xl w-full overflow-auto max-h-[90vh]">
-            <h2 className="text-lg font-bold mb-4">Print Preview</h2>
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-              <div className="h-[70vh] overflow-auto border rounded">
-                {printPreviewUrl && typeof printPreviewUrl === 'string' && (
-                  <Viewer fileUrl={printPreviewUrl} />
-                )}
-              </div>
-            </Worker>
-            <div className="mt-4 text-right">
-              <button
-                onClick={handleClosePreview}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Print
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow max-w-3xl w-full overflow-auto max-h-[90vh]">
-            <h2 className="text-lg font-bold mb-4">Form Preview</h2>
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-              <div className="h-[70vh] overflow-auto border rounded">
-                {selectedForm?.download_url_pdf && (
-                  <Viewer fileUrl={selectedForm.download_url_pdf} />
-                )}
-              </div>
-            </Worker>
-            <div className="mt-4 text-right">
-              <button
-                onClick={() => setSelectedForm(null)}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ✅ PDF View Modal */}
+      <PDFModal
+        url={selectedForm?.download_url_pdf}
+        title="Form Preview"
+        onClose={() => setSelectedForm(null)}
+      />
     </Layout>
   );
 }
