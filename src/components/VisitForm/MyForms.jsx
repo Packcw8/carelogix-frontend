@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../Layout";
-import PDFModal from "../components/PDFModal";
+import PDFModal from "../PDFModal";
 
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
