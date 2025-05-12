@@ -8,8 +8,9 @@ import MainNoteForm from "./components/VisitForm/MainNoteForm";
 import MyForms from "./components/VisitForm/MyForms";
 import ProtectedPage from "./components/ProtectedPage";
 import AdminDashboard from "./components/Admin/AdminDashboard";
+import UserForms from "./components/Admin/UserForms"; // ✅ Added import
 import InvoiceTable from "./components/Invoice/InvoiceTable";
-import ClientManager from "./components/Clients/ClientManager"; // ✅ Add this line
+import ClientManager from "./components/Clients/ClientManager";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -78,6 +79,16 @@ function App() {
           }
         />
         <Route
+          path="/admin/user/:userId"
+          element={
+            isLoggedIn ? (
+              <UserForms />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
           path="/form/visit"
           element={
             isLoggedIn ? (
@@ -140,11 +151,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-

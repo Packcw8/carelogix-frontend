@@ -7,6 +7,11 @@ const serviceCodes = [
   { label: "SFT", value: "130771" },
   { label: "SVFT2", value: "130770" },
   { label: "MDT", value: "130455" },
+  { label: "Adult Skill Building", value: "130390" },
+  { label: "Home Study", value: "120150" },
+  { label: "Individulized Parenting", value: "130300" },
+  { label: "Court Attendance", value: "130755" },
+
 ];
 
 export default function ServiceCodes({ formData, setFormData, onNext, onBack }) {
