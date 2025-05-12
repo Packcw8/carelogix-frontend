@@ -244,7 +244,9 @@ export default function MyForms({ onReturn }) {
             <h2 className="text-lg font-bold mb-4">Print Preview</h2>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
-                <Viewer fileUrl={printPreviewUrl} />
+                {printPreviewUrl && typeof printPreviewUrl === 'string' && (
+  <Viewer fileUrl={printPreviewUrl} />
+)}
               </div>
             </Worker>
             <div className="mt-4 text-right">
@@ -264,7 +266,9 @@ export default function MyForms({ onReturn }) {
             <h2 className="text-lg font-bold mb-4">Form Preview</h2>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
-                <Viewer fileUrl={selectedForm.download_url_pdf} />
+                {selectedForm?.download_url_pdf && (
+  <Viewer fileUrl={selectedForm.download_url_pdf} />
+)}
               </div>
             </Worker>
             <div className="mt-4 text-right">
@@ -281,3 +285,4 @@ export default function MyForms({ onReturn }) {
     </Layout>
   );
 }
+
