@@ -9,6 +9,7 @@ export default function MyForms({ onReturn }) {
   const [selectedForm, setSelectedForm] = useState(null);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [filterType, setFilterType] = useState("week");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
@@ -72,7 +73,14 @@ export default function MyForms({ onReturn }) {
     return false;
   };
 
-  const filteredForms = forms.filter((form) => isInDateRange(form.service_date));
+  const filteredForms = forms.filter((form) => {
+    const matchesDate = isInDateRange(form.service_date);
+    const matchesSearch = [form.case_name, form.case_number]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    return matchesDate && matchesSearch;
+  });
 
   return (
     <Layout title="My Submitted Forms">
@@ -85,25 +93,40 @@ export default function MyForms({ onReturn }) {
         </button>
       )}
 
-      <div className="mb-4">
-        <label className="block font-semibold mb-1 text-gray-700">Select a date:</label>
-        <input
-          type="date"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          className="border p-2 rounded w-full max-w-xs"
-        />
+      <div className="mb-4 space-y-4">
+        <div>
+          <label className="block font-semibold mb-1 text-gray-700">Search by name or case number:</label>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="e.g. Juanita or 123456"
+            className="border p-2 rounded w-full max-w-xs"
+          />
+        </div>
 
-        <label className="block font-semibold mt-4 mb-1 text-gray-700">Filter by:</label>
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="border p-2 rounded w-full max-w-xs"
-        >
-          <option value="day">Day</option>
-          <option value="week">Week</option>
-          <option value="month">Month</option>
-        </select>
+        <div>
+          <label className="block font-semibold mb-1 text-gray-700">Select a date:</label>
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="border p-2 rounded w-full max-w-xs"
+          />
+        </div>
+
+        <div>
+          <label className="block font-semibold mt-2 mb-1 text-gray-700">Filter by:</label>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="border p-2 rounded w-full max-w-xs"
+          >
+            <option value="day">Day</option>
+            <option value="week">Week</option>
+            <option value="month">Month</option>
+          </select>
+        </div>
       </div>
 
       {filteredForms.length === 0 ? (
