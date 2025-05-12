@@ -10,9 +10,10 @@ export default function MyForms({ onReturn }) {
   const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [filterType, setFilterType] = useState("week");
-  const [filterYear, setFilterYear] = useState(new Date().getFullYear());
   const [searchQuery, setSearchQuery] = useState("");
   const [searchTriggered, setSearchTriggered] = useState(false);
+  const [printQueue, setPrintQueue] = useState([]);
+  const [printPreviewUrl, setPrintPreviewUrl] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
@@ -60,8 +61,6 @@ export default function MyForms({ onReturn }) {
     const selected = new Date(filterDate);
     if (isNaN(d) || isNaN(selected)) return false;
 
-    if (d.getFullYear() !== Number(filterYear)) return false;
-
     if (filterType === "day") {
       return d.toDateString() === selected.toDateString();
     } else if (filterType === "week") {
@@ -75,7 +74,7 @@ export default function MyForms({ onReturn }) {
     } else if (filterType === "month") {
       return d.getMonth() === selected.getMonth();
     }
-    return false;
+    return true; // Allow all if no match
   };
 
   const filteredForms = forms.filter((form) => {
@@ -97,14 +96,27 @@ export default function MyForms({ onReturn }) {
   };
 
   const handlePrintSelected = () => {
-    const urls = forms
-      .filter((form) => selectedFiles.has(form.id))
-      .map((form) => `https://carelogix-docs.s3.us-east-2.amazonaws.com/${form.file_path.replace(".docx", ".pdf")}`);
+    const queue = forms.filter((form) => selectedFiles.has(form.id) && form.download_url_pdf);
+    if (queue.length === 0) {
+      alert("No valid forms selected for printing.");
+      return;
+    }
+    setPrintQueue(queue);
+    setPrintPreviewUrl(queue[0].download_url_pdf);
+  };
 
-    urls.forEach((url) => {
-      const win = window.open(url);
-      if (win) win.print();
-    });
+  const handleClosePreview = () => {
+    const remaining = [...printQueue];
+    remaining.shift();
+    if (remaining.length > 0) {
+      setPrintQueue(remaining);
+      setPrintPreviewUrl(remaining[0].download_url_pdf);
+      setTimeout(() => window.print(), 500);
+    } else {
+      setPrintQueue([]);
+      setPrintPreviewUrl(null);
+      setTimeout(() => window.print(), 500);
+    }
   };
 
   return (
@@ -158,19 +170,8 @@ export default function MyForms({ onReturn }) {
             <option value="day">Day</option>
             <option value="week">Week</option>
             <option value="month">Month</option>
+            <option value="year">Year</option>
           </select>
-        </div>
-
-        <div>
-          <label className="block font-semibold mt-2 mb-1 text-gray-700">Filter by year:</label>
-          <input
-            type="number"
-            value={filterYear}
-            onChange={(e) => setFilterYear(e.target.value)}
-            className="border p-2 rounded w-full max-w-xs"
-            min="2000"
-            max={new Date().getFullYear() + 1}
-          />
         </div>
 
         {selectedFiles.size > 0 && (
@@ -189,56 +190,72 @@ export default function MyForms({ onReturn }) {
         <p className="text-gray-600">No forms found for the selected range.</p>
       ) : (
         <ul className="space-y-4">
-          {filteredForms.map((form) => {
-            const fileName = form.file_path?.split(/[\\/]/).pop();
-
-            return (
-              <li key={form.id} className="border rounded p-4 bg-white shadow">
-                <div className="flex justify-between items-start">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
-                    <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
-                    <p><strong>Type:</strong> {form.form_type}</p>
-                    <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      checked={selectedFiles.has(form.id)}
-                      onChange={() => toggleSelect(form.id)}
-                      className="h-5 w-5 mt-2"
-                    />
-                  </div>
+          {filteredForms.map((form) => (
+            <li key={form.id} className="border rounded p-4 bg-white shadow">
+              <div className="flex justify-between items-start">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
+                  <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
+                  <p><strong>Type:</strong> {form.form_type}</p>
+                  <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
                 </div>
-
-                <div className="flex gap-4 mt-3 flex-wrap">
-                  {fileName && (
-                    <a
-                      href={`https://carelogix-docs.s3.us-east-2.amazonaws.com/${fileName}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline"
-                    >
-                      Download
-                    </a>
-                  )}
-                  <button
-                    onClick={() => setSelectedForm(form)}
-                    className="text-green-600 underline"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => handleDelete(form.id)}
-                    className="text-red-600 underline"
-                  >
-                    Delete
-                  </button>
+                <div>
+                  <input
+                    type="checkbox"
+                    checked={selectedFiles.has(form.id)}
+                    onChange={() => toggleSelect(form.id)}
+                    className="h-5 w-5 mt-2"
+                  />
                 </div>
-              </li>
-            );
-          })}
+              </div>
+
+              <div className="flex gap-4 mt-3 flex-wrap">
+                {form.download_url_docx && (
+                  <a
+                    href={form.download_url_docx}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Download
+                  </a>
+                )}
+                <button
+                  onClick={() => setSelectedForm(form)}
+                  className="text-green-600 underline"
+                >
+                  View
+                </button>
+                <button
+                  onClick={() => handleDelete(form.id)}
+                  className="text-red-600 underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
         </ul>
+      )}
+
+      {printPreviewUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow max-w-3xl w-full overflow-auto max-h-[90vh]">
+            <h2 className="text-lg font-bold mb-4">Print Preview</h2>
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+              <div className="h-[70vh] overflow-auto border rounded">
+                <Viewer fileUrl={printPreviewUrl} />
+              </div>
+            </Worker>
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleClosePreview}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Print</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {selectedForm && (
@@ -247,9 +264,7 @@ export default function MyForms({ onReturn }) {
             <h2 className="text-lg font-bold mb-4">Form Preview</h2>
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
-                <Viewer
-                  fileUrl={`https://carelogix-docs.s3.us-east-2.amazonaws.com/${selectedForm.file_path.replace(".docx", ".pdf")}`}
-                />
+                <Viewer fileUrl={selectedForm.download_url_pdf} />
               </div>
             </Worker>
             <div className="mt-4 text-right">
