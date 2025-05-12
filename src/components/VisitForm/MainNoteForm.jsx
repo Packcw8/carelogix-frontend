@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import CaseInfo from "./CaseInfo";
 import VisitDetails from "./VisitDetails";
 import ServiceCodes from "./ServiceCodes";
+import CheckList from "./CheckList"; // ✅ Added for checkboxes
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import Layout from "../Layout";
@@ -19,11 +20,11 @@ export default function MainNoteForm({ onReturn }) {
     stop_time: "",
     location: "",
     service_provided: "",
-    provider: "", // ✅ Auto-filled
+    provider: "",
     code: [],
     completion_status: "",
-    skill_deficit: "", // ✅ New
-    developed_skill: "", // ✅ New
+    skill_deficit: "",
+    developed_skill: "",
     participants: "",
     summary: "",
     clients_progress: "",
@@ -117,13 +118,20 @@ export default function MainNoteForm({ onReturn }) {
       onBack={() => setStep(step - 1)}
       showProgress={true}
       showFosterQuestions={false}
-      showSkillInputs={true} // ✅ Ensure skill fields show
+      showSkillInputs={true}
     />,
     <ServiceCodes
       formData={formData}
       setFormData={setFormData}
       onNext={() => setStep(step + 1)}
       onBack={() => setStep(step - 1)}
+    />,
+    <CheckList
+      formData={formData}
+      setFormData={setFormData}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+      showFosterQuestion={false} // ✅ hides foster questions
     />,
     <TravelSegment
       segments={segments}
