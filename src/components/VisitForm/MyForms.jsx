@@ -97,8 +97,12 @@ export default function MyForms({ onReturn }) {
 
   const handlePrintSelected = () => {
     const queue = forms.filter((form) => selectedFiles.has(form.id) && form.download_url_pdf);
+    if (selectedFiles.size === 0) {
+      alert("Please select at least one form.");
+      return;
+    }
     if (queue.length === 0) {
-      alert("No valid forms selected for printing.");
+      alert("Selected forms do not have valid PDF links.");
       return;
     }
     setPrintQueue(queue);
@@ -198,6 +202,10 @@ export default function MyForms({ onReturn }) {
                   <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
                   <p><strong>Type:</strong> {form.form_type}</p>
                   <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
+                  {/* ✅ PDF Debug Line */}
+                  <p className={`text-sm ${form.download_url_pdf ? "text-green-600" : "text-red-600"}`}>
+                    <strong>PDF URL Exists:</strong> {form.download_url_pdf ? "✅" : "❌"}
+                  </p>
                 </div>
                 <div>
                   <input
@@ -245,8 +253,8 @@ export default function MyForms({ onReturn }) {
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
                 {printPreviewUrl && typeof printPreviewUrl === 'string' && (
-  <Viewer fileUrl={printPreviewUrl} />
-)}
+                  <Viewer fileUrl={printPreviewUrl} />
+                )}
               </div>
             </Worker>
             <div className="mt-4 text-right">
@@ -254,7 +262,8 @@ export default function MyForms({ onReturn }) {
                 onClick={handleClosePreview}
                 className="bg-blue-600 text-white px-4 py-2 rounded"
               >
-                Print</button>
+                Print
+              </button>
             </div>
           </div>
         </div>
@@ -267,8 +276,8 @@ export default function MyForms({ onReturn }) {
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
                 {selectedForm?.download_url_pdf && (
-  <Viewer fileUrl={selectedForm.download_url_pdf} />
-)}
+                  <Viewer fileUrl={selectedForm.download_url_pdf} />
+                )}
               </div>
             </Worker>
             <div className="mt-4 text-right">
@@ -285,4 +294,3 @@ export default function MyForms({ onReturn }) {
     </Layout>
   );
 }
-
