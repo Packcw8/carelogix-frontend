@@ -110,17 +110,17 @@ export default function UserForms() {
                       href={form.download_url_docx}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                     >
-                      Download
+                      Download DOCX
                     </a>
                   )}
                   {form.download_url_pdf && (
                     <button
                       onClick={() => setSelectedForm(form)}
-                      className="text-green-600 underline"
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                     >
-                      View
+                      View PDF
                     </button>
                   )}
                 </div>
