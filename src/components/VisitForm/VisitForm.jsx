@@ -102,7 +102,14 @@ export default function VisitForm({ onReturn }) {
 
   const steps = [
     <CaseInfo formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} />,
-    <VisitDetails formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
+    <VisitDetails
+      formData={formData}
+      setFormData={setFormData}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+      showFosterQuestions={true}
+      showSkillInputs={false} // ✅ Bypass skill fields
+    />,
     <ServiceCodes formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
     <CheckList
       formData={formData}

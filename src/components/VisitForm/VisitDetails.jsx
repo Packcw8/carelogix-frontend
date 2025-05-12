@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function VisitDetails({
   formData,
@@ -11,6 +11,14 @@ export default function VisitDetails({
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // Auto-fill Provider from user in localStorage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.full_name && !formData.provider) {
+      setFormData((prev) => ({ ...prev, provider: user.full_name }));
+    }
+  }, []);
 
   return (
     <form
@@ -64,6 +72,30 @@ export default function VisitDetails({
           rows={6}
           className="w-full border rounded px-3 py-2"
           placeholder="Describe what occurred during the visit..."
+        />
+      </div>
+
+      {/* ✅ Skill Deficit */}
+      <div>
+        <label className="block font-medium">Skill Deficit</label>
+        <input
+          type="text"
+          name="skill_deficit"
+          value={formData.skill_deficit || ""}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-1"
+        />
+      </div>
+
+      {/* ✅ Skill Being Developed */}
+      <div>
+        <label className="block font-medium">Skill Being Developed</label>
+        <input
+          type="text"
+          name="developed_skill"
+          value={formData.developed_skill || ""}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-1"
         />
       </div>
 
@@ -124,20 +156,20 @@ export default function VisitDetails({
           </div>
         </>
       )}
-          <div>
-  <label className="block font-medium">Total Miles Driven</label>
-  <input
-    type="number"
-    name="miles"
-    min="0"
-    step="0.1"
-    value={formData.miles || ""}
-    onChange={(e) => setFormData({ ...formData, miles: e.target.value })}
-    className="w-full border rounded px-3 py-1"
-    placeholder="Enter total mileage"
-  />
-</div>
 
+      <div>
+        <label className="block font-medium">Total Miles Driven</label>
+        <input
+          type="number"
+          name="miles"
+          min="0"
+          step="0.1"
+          value={formData.miles || ""}
+          onChange={(e) => setFormData({ ...formData, miles: e.target.value })}
+          className="w-full border rounded px-3 py-1"
+          placeholder="Enter total mileage"
+        />
+      </div>
 
       <div className="flex justify-between">
         <button
