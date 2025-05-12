@@ -102,4 +102,39 @@ export default function VisitForm({ onReturn }) {
     <CaseInfo formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} />,
     <VisitDetails formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
     <ServiceCodes formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
-    <CheckList formData={formData} setFormData={setFormData
+    <CheckList formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
+    <TravelSegment segments={segments} setSegments={setSegments} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
+    <SignatureSection formData={formData} setFormData={setFormData} onBack={() => setStep(step - 1)} onSubmit={handleSubmit} />,
+  ];
+
+  return (
+    <Layout title="Supervised Visit Form">
+      {onReturn && (
+        <button
+          onClick={onReturn}
+          className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+        >
+          ← Return to Dashboard
+        </button>
+      )}
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">Select Client (optional)</label>
+        <select
+          className="border px-3 py-2 rounded w-full"
+          onChange={(e) => handleClientSelect(e.target.value)}
+        >
+          <option value="">-- Fill out manually --</option>
+          {clients.map((client) => (
+            <option key={client.id} value={client.id}>
+              {client.case_name} ({client.case_number})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {steps[step]}
+    </Layout>
+  );
+}
+
