@@ -24,12 +24,15 @@ export default function VisitForm({ onReturn }) {
     provider: "",
     participants: "",
     summary: "",
-    suplyneeds_checkbox: false,
-    rules_checkbox: false,
-    fosterspeak_checkbox: false,
+    suplyneeds_checkbox: "no",
+    rules_checkbox: "no",
+    fosterspeak_checkbox: "no",
     foster_concerns: "",
     safety_concerns: "",
     additional_information: "",
+    safety_checkbox: "no",
+    location_checkbox: "no",
+    abuse_checkbox: "no",
     miles: "",
     code: [],
     signature: "",
@@ -48,10 +51,9 @@ export default function VisitForm({ onReturn }) {
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    console.error("❌ REACT_APP_API_URL is not defined.");
     throw new Error("REACT_APP_API_URL is missing.");
   }
-  console.log("👥 Fetching clients from:", apiUrl);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -102,7 +104,13 @@ export default function VisitForm({ onReturn }) {
     <CaseInfo formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} />,
     <VisitDetails formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
     <ServiceCodes formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
-    <CheckList formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
+    <CheckList
+      formData={formData}
+      setFormData={setFormData}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+      showFosterQuestion={true}
+    />,
     <TravelSegment segments={segments} setSegments={setSegments} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
     <SignatureSection formData={formData} setFormData={setFormData} onBack={() => setStep(step - 1)} onSubmit={handleSubmit} />,
   ];
@@ -137,4 +145,3 @@ export default function VisitForm({ onReturn }) {
     </Layout>
   );
 }
-
