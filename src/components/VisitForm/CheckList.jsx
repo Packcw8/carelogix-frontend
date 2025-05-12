@@ -1,4 +1,3 @@
-
 import React from "react";
 
 export default function CheckList({ formData, setFormData, onNext, onBack, showFosterQuestion = true }) {
@@ -93,6 +92,50 @@ export default function CheckList({ formData, setFormData, onNext, onBack, showF
         >
           <option value="yes">*</option>
           <option value="no">No</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Safety Observation Summary</label>
+        <select
+          name="safety_observation"
+          value={formData.safety_observation || ""}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="">-- Select --</option>
+          <option value="*Safety Concerns">*Safety Concerns</option>
+          <option value="*No Safety Concerns">*No Safety Concerns</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Abuse Observation Summary</label>
+        <select
+          name="abuse_observation"
+          value={formData.abuse_observation || ""}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="">-- Select --</option>
+          <option value="*Abuse or Neglect">*Abuse or Neglect</option>
+          <option value="*No Abuse or Neglect">*No Abuse or Neglect</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Location Context</label>
+        <select
+          name="location_context"
+          value={formData.location_context || ""}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="">-- Select --</option>
+          <option value="*Home">*Home</option>
+          <option value="*DHHR">*DHHR</option>
+          <option value="*Court">*Court</option>
+          <option value="*Other">*Other</option>
         </select>
       </div>
 
