@@ -27,9 +27,9 @@ export default function MainNoteForm({ onReturn }) {
     participants: "",
     summary: "",
     clients_progress: "",
-    safety_checkbox: "no",
-    location_checkbox: "no",
-    abuse_checkbox: "no",
+    safety_checkbox: "* No Safety Concerns",
+    location_checkbox: "* Home",
+    abuse_checkbox: "* No Abuse or Neglect",
     miles: "",
     signature: "",
   });
