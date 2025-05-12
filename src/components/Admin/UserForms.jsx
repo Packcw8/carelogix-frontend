@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../Layout";
 import PDFModal from "../PDFModal";
 
 export default function UserForms() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
@@ -58,6 +59,13 @@ export default function UserForms() {
   return (
     <Layout title="User's Submitted Forms">
       <div className="max-w-5xl mx-auto p-4">
+        <button
+          onClick={() => navigate("/admin")}
+          className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+        >
+          ← Back to Admin Dashboard
+        </button>
+
         <div className="flex flex-wrap gap-4 mb-4">
           <input
             type="text"
