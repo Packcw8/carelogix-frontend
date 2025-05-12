@@ -9,6 +9,8 @@ export default function ProtectedPage() {
     throw new Error("REACT_APP_API_URL is missing.");
   }
   console.log("🔒 Fetching user from:", apiUrl);
+  console.log("✅ Active API:", apiUrl);
+
 
   useEffect(() => {
     fetch(`${apiUrl}/me`, {
