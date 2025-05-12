@@ -88,11 +88,12 @@ export async function submitForm({ formData, segments, templateName, formType })
   }
 
   const data = await res.json();
+  console.log("📦 Backend response:", data);
 
-  if (data.download_url) {
-    window.open(data.download_url, "_blank");
+  if (data.download_url_docx) {
+    window.open(data.download_url_docx, "_blank");
   } else {
     alert("❌ Document created, but download URL missing.");
-    console.error(data);
+    console.error("Missing download_url_docx:", data);
   }
 }
