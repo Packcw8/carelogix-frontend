@@ -3,16 +3,31 @@ import { useEffect, useState } from "react";
 export default function ProtectedPage() {
   const [user, setUser] = useState(null);
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("🔒 Fetching user from:", apiUrl);
+
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/me", {
+    fetch(`${apiUrl}/me`, {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: "Bearer " + localStorage.getItem("auth_token"),
       },
     })
-      .then(res => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Unauthorized");
+        }
+        return res.json();
+      })
       .then(setUser)
-      .catch(err => console.error("Access denied", err));
-  }, []);
+      .catch((err) => {
+        console.error("Access denied", err);
+        setUser(null);
+      });
+  }, [apiUrl]);
 
   if (!user) return <p>Loading or not authorized...</p>;
 

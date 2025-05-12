@@ -5,7 +5,12 @@ export default function LoginForm({ onLogin }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("🔐 Using API for login:", apiUrl);
 
   const handleLogin = async (e) => {
     e.preventDefault();

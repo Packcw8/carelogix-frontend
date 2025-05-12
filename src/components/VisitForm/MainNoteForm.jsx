@@ -44,21 +44,31 @@ export default function MainNoteForm({ onReturn }) {
     },
   ]);
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("🧾 Fetching clients from:", apiUrl);
+
   useEffect(() => {
     const fetchClients = async () => {
       const token = localStorage.getItem("auth_token");
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
       const res = await fetch(`${apiUrl}/clients`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (res.ok) {
         const data = await res.json();
         setClients(data);
+      } else {
+        console.error("❌ Failed to fetch clients.");
       }
     };
 
     fetchClients();
-  }, []);
+  }, [apiUrl]);
 
   const handleClientSelect = (clientId) => {
     if (!clientId) {
@@ -82,7 +92,6 @@ export default function MainNoteForm({ onReturn }) {
     }
   };
 
-  // ✅ Uses shared form logic
   const handleSubmit = async (finalData) => {
     await submitForm({
       formData: finalData,
@@ -137,4 +146,3 @@ export default function MainNoteForm({ onReturn }) {
     </Layout>
   );
 }
-

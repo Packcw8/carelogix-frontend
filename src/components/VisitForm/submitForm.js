@@ -48,7 +48,13 @@ export async function submitForm({ formData, segments, templateName, formType })
   context["miles"] = formData.miles || "0";
 
   // Submit to backend
-  const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("🔗 Submitting to backend:", apiUrl);
+
   const token = localStorage.getItem("auth_token");
 
   const res = await fetch(`${apiUrl}/generate-doc`, {

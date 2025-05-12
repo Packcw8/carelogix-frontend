@@ -8,7 +8,14 @@ export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
-  const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("📁 Fetching MyForms from:", apiUrl);
+
   const token = localStorage.getItem("auth_token");
 
   useEffect(() => {

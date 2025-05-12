@@ -7,7 +7,12 @@ export default function RegisterForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+  const apiUrl = process.env.REACT_APP_API_URL;
+  if (!apiUrl) {
+    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    throw new Error("REACT_APP_API_URL is missing.");
+  }
+  console.log("📝 Registering via:", apiUrl);
 
   useEffect(() => {
     fetch(`${apiUrl}/agencies`)
@@ -91,5 +96,3 @@ export default function RegisterForm() {
     </form>
   );
 }
-
-
