@@ -7,9 +7,11 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [filterType, setFilterType] = useState("week");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchTriggered, setSearchTriggered] = useState(false);
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
@@ -74,6 +76,7 @@ export default function MyForms({ onReturn }) {
   };
 
   const filteredForms = forms.filter((form) => {
+    if (!searchTriggered) return true;
     const matchesDate = isInDateRange(form.service_date);
     const matchesSearch = [form.case_name, form.case_number]
       .join(" ")
@@ -81,6 +84,25 @@ export default function MyForms({ onReturn }) {
       .includes(searchQuery.toLowerCase());
     return matchesDate && matchesSearch;
   });
+
+  const toggleSelect = (formId) => {
+    setSelectedFiles((prev) => {
+      const updated = new Set(prev);
+      updated.has(formId) ? updated.delete(formId) : updated.add(formId);
+      return updated;
+    });
+  };
+
+  const handlePrintSelected = () => {
+    const urls = forms
+      .filter((form) => selectedFiles.has(form.id))
+      .map((form) => `https://carelogix-docs.s3.us-east-2.amazonaws.com/${form.file_path.replace(".docx", ".pdf")}`);
+
+    urls.forEach((url) => {
+      const win = window.open(url);
+      if (win) win.print();
+    });
+  };
 
   return (
     <Layout title="My Submitted Forms">
@@ -96,13 +118,21 @@ export default function MyForms({ onReturn }) {
       <div className="mb-4 space-y-4">
         <div>
           <label className="block font-semibold mb-1 text-gray-700">Search by name or case number:</label>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="e.g. Juanita or 123456"
-            className="border p-2 rounded w-full max-w-xs"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="e.g. Juanita or 123456"
+              className="border p-2 rounded w-full max-w-xs"
+            />
+            <button
+              onClick={() => setSearchTriggered(true)}
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         <div>
@@ -127,6 +157,17 @@ export default function MyForms({ onReturn }) {
             <option value="month">Month</option>
           </select>
         </div>
+
+        {selectedFiles.size > 0 && (
+          <div>
+            <button
+              onClick={handlePrintSelected}
+              className="mt-2 px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
+            >
+              Print Selected ({selectedFiles.size})
+            </button>
+          </div>
+        )}
       </div>
 
       {filteredForms.length === 0 ? (
@@ -138,11 +179,21 @@ export default function MyForms({ onReturn }) {
 
             return (
               <li key={form.id} className="border rounded p-4 bg-white shadow">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
-                  <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
-                  <p><strong>Type:</strong> {form.form_type}</p>
-                  <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
+                <div className="flex justify-between items-start">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
+                    <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
+                    <p><strong>Type:</strong> {form.form_type}</p>
+                    <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={selectedFiles.has(form.id)}
+                      onChange={() => toggleSelect(form.id)}
+                      className="h-5 w-5 mt-2"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex gap-4 mt-3 flex-wrap">
