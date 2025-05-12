@@ -1,5 +1,17 @@
 export async function submitForm({ formData, segments, templateName, formType }) {
-  const formattedDate = new Date(formData.service_date).toLocaleDateString("en-US", {
+  // Enforce required service_date
+  if (!formData.service_date) {
+    alert("❌ Service date is required.");
+    throw new Error("Missing service_date in formData.");
+  }
+
+  const parsedDate = new Date(formData.service_date);
+  if (isNaN(parsedDate.getTime())) {
+    alert("❌ Invalid service date format.");
+    throw new Error("Invalid service_date format.");
+  }
+
+  const formattedDate = parsedDate.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
