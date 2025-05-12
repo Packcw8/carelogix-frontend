@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../Layout";
+import PDFModal from "../PDFModal";
 
 export default function UserForms() {
   const { userId } = useParams();
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
+  const [selectedForm, setSelectedForm] = useState(null);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("week");
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
@@ -94,10 +96,37 @@ export default function UserForms() {
                   <p><strong>Type:</strong> {form.form_type}</p>
                   <p><strong>Date:</strong> {form.service_date || form.created_at?.split("T")[0]}</p>
                 </div>
+                <div className="flex gap-4 mt-3 flex-wrap">
+                  {form.download_url_docx && (
+                    <a
+                      href={form.download_url_docx}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Download
+                    </a>
+                  )}
+                  {form.download_url_pdf && (
+                    <button
+                      onClick={() => setSelectedForm(form)}
+                      className="text-green-600 underline"
+                    >
+                      View
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         )}
+
+        {/* ✅ PDF View Modal */}
+        <PDFModal
+          url={selectedForm?.download_url_pdf}
+          title="Form Preview"
+          onClose={() => setSelectedForm(null)}
+        />
       </div>
     </Layout>
   );

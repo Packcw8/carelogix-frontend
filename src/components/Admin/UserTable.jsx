@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function UserTable() {
   const [users, setUsers] = useState([]);
-  const [expandedUserId, setExpandedUserId] = useState(null);
-  const [userForms, setUserForms] = useState({});
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const navigate = useNavigate();
 
   const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
 
@@ -25,27 +26,8 @@ export default function UserTable() {
     fetchUsers();
   }, []);
 
-  const toggleForms = async (userId) => {
-    if (expandedUserId === userId) {
-      setExpandedUserId(null);
-      return;
-    }
-
-    if (!userForms[userId]) {
-      const token = localStorage.getItem("auth_token");
-      const res = await fetch(`${apiUrl}/admin/users/${userId}/forms`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setUserForms((prev) => ({ ...prev, [userId]: data }));
-      } else {
-        console.error("Failed to fetch forms for user", userId);
-      }
-    }
-
-    setExpandedUserId(userId);
+  const handleMenuClick = (userId) => {
+    setMenuOpenId(menuOpenId === userId ? null : userId);
   };
 
   return (
@@ -58,41 +40,53 @@ export default function UserTable() {
               <th className="px-4 py-3">Full Name</th>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Agency</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <React.Fragment key={user.id}>
-                <tr
-                  onClick={() => toggleForms(user.id)}
-                  className="cursor-pointer hover:bg-gray-50 transition-all border-t border-gray-200 text-sm"
-                >
+                <tr className="hover:bg-gray-50 border-t border-gray-200 text-sm">
                   <td className="px-4 py-3">{user.full_name}</td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">{user.agency_name || "—"}</td>
+                  <td className="px-4 py-3 text-right relative">
+                    <button
+                      onClick={() => handleMenuClick(user.id)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      ▼ Options
+                    </button>
+                    {menuOpenId === user.id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-10">
+                        <button
+                          onClick={() => navigate(`/admin/user/${user.id}`)}
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          View User's Notes
+                        </button>
+                        <button
+                          disabled
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                        >
+                          View User's Invoice (coming soon)
+                        </button>
+                        <button
+                          disabled
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                        >
+                          Assign Tier (coming soon)
+                        </button>
+                        <button
+                          disabled
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                        >
+                          Assign Referral (coming soon)
+                        </button>
+                      </div>
+                    )}
+                  </td>
                 </tr>
-                {expandedUserId === user.id && (
-                  <tr>
-                    <td colSpan={3} className="bg-gray-50 px-4 py-3">
-                      {userForms[user.id]?.length > 0 ? (
-                        <ul className="space-y-2">
-                          {userForms[user.id].map((form) => (
-                            <li key={form.id} className="border rounded p-3 bg-white shadow">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <p><strong>Case:</strong> {form.case_name}</p>
-                                <p><strong>Case #:</strong> {form.case_number}</p>
-                                <p><strong>Type:</strong> {form.form_type}</p>
-                                <p><strong>Date:</strong> {form.service_date || form.created_at?.split("T")[0]}</p>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500">No forms submitted.</p>
-                      )}
-                    </td>
-                  </tr>
-                )}
               </React.Fragment>
             ))}
           </tbody>
