@@ -1,162 +1,116 @@
-import React, { useEffect, useState } from "react";
-import CaseInfo from "./CaseInfo";
-import VisitDetails from "./VisitDetails";
-import ServiceCodes from "./ServiceCodes";
-import TravelSegment from "./TravelSegment";
-import SignatureSection from "./Signature";
-import Layout from "../Layout";
-import { submitForm } from "./submitForm";
 
-export default function MainNoteForm({ onReturn }) {
-  const [step, setStep] = useState(0);
-  const [clients, setClients] = useState([]);
-  const [formData, setFormData] = useState({
-    case_name: "",
-    case_number: "",
-    client_number: "",
-    service_date: "",
-    start_time: "",
-    stop_time: "",
-    location: "",
-    service_provided: "",
-    code: [],
-    completion_status: "",
-    skill_deficit: "",
-    developed_skill: "",
-    participants: "",
-    summary: "",
-    clients_progress: "",
-    safety_checkbox: "no",
-    location_checkbox: "no",
-    abuse_checkbox: "no",
-    miles: "",
-    signature: "",
-  });
+import React from "react";
 
-  const [segments, setSegments] = useState([
-    {
-      from: "",
-      to: "",
-      at_start_time: "",
-      at_stop_time: "",
-      itt_start_time: "",
-      itt_stop_time: "",
-    },
-  ]);
-
-  const apiUrl = process.env.REACT_APP_API_URL;
-  if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined.");
-    throw new Error("REACT_APP_API_URL is missing.");
-  }
-
-  useEffect(() => {
-    const fetchClients = async () => {
-      const token = localStorage.getItem("auth_token");
-
-      const res = await fetch(`${apiUrl}/clients`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setClients(data);
-      } else {
-        console.error("❌ Failed to fetch clients.");
-      }
-    };
-
-    fetchClients();
-  }, [apiUrl]);
-
-  const handleClientSelect = (clientId) => {
-    if (!clientId) {
-      setFormData((prev) => ({
-        ...prev,
-        case_name: "",
-        case_number: "",
-        client_number: "",
-      }));
-      return;
-    }
-
-    const selected = clients.find((c) => c.id === clientId);
-    if (selected) {
-      setFormData((prev) => ({
-        ...prev,
-        case_name: selected.case_name,
-        case_number: selected.case_number,
-        client_number: selected.client_number,
-      }));
-    }
+export default function CheckList({ formData, setFormData, onNext, onBack, showFosterQuestion = true }) {
+  const handleSelectChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = async (finalData) => {
-    await submitForm({
-      formData: finalData,
-      segments,
-      templateName: "main_note_form1.docx",
-      formType: "Main Note",
-    });
-  };
-
-  const steps = [
-    <CaseInfo formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} />,
-    <VisitDetails
-      formData={formData}
-      setFormData={setFormData}
-      onNext={() => setStep(step + 1)}
-      onBack={() => setStep(step - 1)}
-      showProgress={true}
-      showFosterQuestions={false} // 🚫 no foster question on main note
-    />,
-    <ServiceCodes
-      formData={formData}
-      setFormData={setFormData}
-      onNext={() => setStep(step + 1)}
-      onBack={() => setStep(step - 1)}
-    />,
-    <TravelSegment
-      segments={segments}
-      setSegments={setSegments}
-      onNext={() => setStep(step + 1)}
-      onBack={() => setStep(step - 1)}
-    />,
-    <SignatureSection
-      formData={formData}
-      setFormData={setFormData}
-      onBack={() => setStep(step - 1)}
-      onSubmit={handleSubmit}
-    />,
-  ];
 
   return (
-    <Layout title="Main Note Form">
-      {onReturn && (
-        <button
-          onClick={onReturn}
-          className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
-        >
-          ← Return to Dashboard
-        </button>
-      )}
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onNext();
+      }}
+      className="space-y-4"
+    >
+      <h2 className="text-xl font-semibold">Step 4: Visit Checklist</h2>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Select Client (optional)</label>
+      <div>
+        <label className="block font-medium">Did the parent supply child’s needs?</label>
         <select
-          className="border px-3 py-2 rounded w-full"
-          onChange={(e) => handleClientSelect(e.target.value)}
+          name="suplyneeds_checkbox"
+          value={formData.suplyneeds_checkbox || "no"}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
         >
-          <option value="">-- Fill out manually --</option>
-          {clients.map((client) => (
-            <option key={client.id} value={client.id}>
-              {client.case_name} ({client.case_number})
-            </option>
-          ))}
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
         </select>
       </div>
 
-      {steps[step]}
-    </Layout>
+      <div>
+        <label className="block font-medium">Did the family follow visitation rules?</label>
+        <select
+          name="rules_checkbox"
+          value={formData.rules_checkbox || "no"}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      {showFosterQuestion && (
+        <div>
+          <label className="block font-medium">Did you speak with the foster parent?</label>
+          <select
+            name="fosterspeak_checkbox"
+            value={formData.fosterspeak_checkbox || "no"}
+            onChange={handleSelectChange}
+            className="w-full border rounded px-3 py-1"
+          >
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      )}
+
+      <div>
+        <label className="block font-medium">Safety Concerns?</label>
+        <select
+          name="safety_checkbox"
+          value={formData.safety_checkbox || "no"}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="yes">*</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Location Concerns?</label>
+        <select
+          name="location_checkbox"
+          value={formData.location_checkbox || "no"}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="yes">*</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block font-medium">Abuse Concerns?</label>
+        <select
+          name="abuse_checkbox"
+          value={formData.abuse_checkbox || "no"}
+          onChange={handleSelectChange}
+          className="w-full border rounded px-3 py-1"
+        >
+          <option value="yes">*</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={onBack}
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Continue
+        </button>
+      </div>
+    </form>
   );
 }

@@ -4,8 +4,9 @@ import VisitDetails from "./VisitDetails";
 import ServiceCodes from "./ServiceCodes";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
+import CheckList from "./CheckList";
 import Layout from "../Layout";
-import { submitForm } from "./submitForm"; // ✅ Make sure the path is correct
+import { submitForm } from "./submitForm";
 
 export default function MainNoteForm({ onReturn }) {
   const [step, setStep] = useState(0);
@@ -26,9 +27,9 @@ export default function MainNoteForm({ onReturn }) {
     participants: "",
     summary: "",
     clients_progress: "",
-    safety_checkbox: "",
-    location_checkbox: "",
-    abuse_checkbox: "",
+    safety_checkbox: "no",
+    location_checkbox: "no",
+    abuse_checkbox: "no",
     miles: "",
     signature: "",
   });
@@ -46,10 +47,9 @@ export default function MainNoteForm({ onReturn }) {
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    console.error("❌ REACT_APP_API_URL is not defined.");
     throw new Error("REACT_APP_API_URL is missing.");
   }
-  console.log("🧾 Fetching clients from:", apiUrl);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -111,9 +111,25 @@ export default function MainNoteForm({ onReturn }) {
       showProgress={true}
       showFosterQuestions={false}
     />,
-    <ServiceCodes formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
-    <TravelSegment segments={segments} setSegments={setSegments} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
-    <SignatureSection formData={formData} setFormData={setFormData} onBack={() => setStep(step - 1)} onSubmit={handleSubmit} />,
+    <CheckList
+      formData={formData}
+      setFormData={setFormData}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+      showFosterQuestion={false}
+    />,
+    <TravelSegment
+      segments={segments}
+      setSegments={setSegments}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+    />,
+    <SignatureSection
+      formData={formData}
+      setFormData={setFormData}
+      onBack={() => setStep(step - 1)}
+      onSubmit={handleSubmit}
+    />,
   ];
 
   return (
