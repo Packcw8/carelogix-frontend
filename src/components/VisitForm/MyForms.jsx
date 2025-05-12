@@ -8,13 +8,13 @@ export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
+  const [filterType, setFilterType] = useState("week");
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
     console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
     throw new Error("REACT_APP_API_URL is missing.");
   }
-  console.log("📁 Fetching MyForms from:", apiUrl);
 
   const token = localStorage.getItem("auth_token");
 
@@ -51,25 +51,28 @@ export default function MyForms({ onReturn }) {
     }
   };
 
-  const getWeekRange = (dateStr) => {
-    const date = new Date(dateStr);
-    const day = date.getDay();
-    const offset = (day < 5 ? -((day + 2) % 7) : 5);
-    const start = new Date(date);
-    start.setDate(date.getDate() - offset);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    return [start, end];
-  };
-
-  const isInSelectedWeek = (formDate) => {
-    if (!formDate) return false;
-    const [start, end] = getWeekRange(filterDate);
+  const isInDateRange = (formDate) => {
     const d = new Date(formDate);
-    return d >= start && d <= end;
+    const selected = new Date(filterDate);
+    if (isNaN(d) || isNaN(selected)) return false;
+
+    if (filterType === "day") {
+      return d.toDateString() === selected.toDateString();
+    } else if (filterType === "week") {
+      const day = selected.getDay();
+      const offset = (day < 5 ? -((day + 2) % 7) : 5);
+      const start = new Date(selected);
+      start.setDate(selected.getDate() - offset);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return d >= start && d <= end;
+    } else if (filterType === "month") {
+      return d.getMonth() === selected.getMonth() && d.getFullYear() === selected.getFullYear();
+    }
+    return false;
   };
 
-  const filteredForms = forms.filter((form) => isInSelectedWeek(form.service_date));
+  const filteredForms = forms.filter((form) => isInDateRange(form.service_date));
 
   return (
     <Layout title="My Submitted Forms">
@@ -83,24 +86,32 @@ export default function MyForms({ onReturn }) {
       )}
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1 text-gray-700">Select a date to view that week’s forms:</label>
+        <label className="block font-semibold mb-1 text-gray-700">Select a date:</label>
         <input
           type="date"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
           className="border p-2 rounded w-full max-w-xs"
         />
+
+        <label className="block font-semibold mt-4 mb-1 text-gray-700">Filter by:</label>
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="border p-2 rounded w-full max-w-xs"
+        >
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+        </select>
       </div>
 
       {filteredForms.length === 0 ? (
-        <p className="text-gray-600">No forms found for this week.</p>
+        <p className="text-gray-600">No forms found for the selected range.</p>
       ) : (
         <ul className="space-y-4">
           {filteredForms.map((form) => {
             const fileName = form.file_path?.split(/[\\/]/).pop();
-            const safeName = (form.case_name || "case").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-            const safeDate = (form.service_date || "date").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-            const displayName = `${safeName}_${safeDate}.docx`;
 
             return (
               <li key={form.id} className="border rounded p-4 bg-white shadow">
@@ -145,7 +156,7 @@ export default function MyForms({ onReturn }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow max-w-3xl w-full overflow-auto max-h-[90vh]">
             <h2 className="text-lg font-bold mb-4">Form Preview</h2>
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <div className="h-[70vh] overflow-auto border rounded">
                 <Viewer
                   fileUrl={`https://carelogix-docs.s3.us-east-2.amazonaws.com/${selectedForm.file_path.replace(".docx", ".pdf")}`}
