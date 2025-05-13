@@ -8,9 +8,10 @@ import MainNoteForm from "./components/VisitForm/MainNoteForm";
 import MyForms from "./components/VisitForm/MyForms";
 import ProtectedPage from "./components/ProtectedPage";
 import AdminDashboard from "./components/Admin/AdminDashboard";
-import UserForms from "./components/Admin/UserForms"; // ✅ Added import
+import UserForms from "./components/Admin/UserForms";
 import InvoiceTable from "./components/Invoice/InvoiceTable";
 import ClientManager from "./components/Clients/ClientManager";
+import ReferralList from "./components/ReferralList"; // ✅ NEW
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -139,6 +140,16 @@ function App() {
           element={
             isLoggedIn ? (
               <ClientManager onReturn={() => navigate("/dashboard")} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/referrals"
+          element={
+            isLoggedIn ? (
+              <ReferralList />
             ) : (
               <Navigate to="/login" />
             )
