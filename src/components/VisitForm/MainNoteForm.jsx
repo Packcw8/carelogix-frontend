@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import CaseInfo from "./CaseInfo";
 import VisitDetails from "./VisitDetails";
 import ServiceCodes from "./ServiceCodes";
-import CheckList from "./CheckList"; // ✅ Added for checkboxes
+import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
-import Layout from "../Layout";
 import { submitForm } from "./submitForm";
 
 export default function MainNoteForm({ onReturn }) {
@@ -48,11 +47,10 @@ export default function MainNoteForm({ onReturn }) {
 
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined. Check your .env and Vercel settings.");
+    console.error("❌ REACT_APP_API_URL is not defined.");
     throw new Error("REACT_APP_API_URL is missing.");
   }
 
-  // Auto-fill provider from user
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user?.full_name && !formData.provider) {
@@ -131,7 +129,7 @@ export default function MainNoteForm({ onReturn }) {
       setFormData={setFormData}
       onNext={() => setStep(step + 1)}
       onBack={() => setStep(step - 1)}
-      showFosterQuestion={false} // ✅ hides foster questions
+      showFosterQuestion={false}
     />,
     <TravelSegment
       segments={segments}
@@ -148,7 +146,7 @@ export default function MainNoteForm({ onReturn }) {
   ];
 
   return (
-    <Layout title="Main Note Form">
+    <div className="p-4 max-w-4xl mx-auto">
       {onReturn && (
         <button
           onClick={onReturn}
@@ -174,6 +172,6 @@ export default function MainNoteForm({ onReturn }) {
       </div>
 
       {steps[step]}
-    </Layout>
+    </div>
   );
 }
