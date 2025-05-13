@@ -15,7 +15,7 @@ export default function ReferralUploadForm() {
     }
 
     setSubmitting(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("auth_token");
     const formData = new FormData();
     formData.append("file", file);
     formData.append("note", note);
