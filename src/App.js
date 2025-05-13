@@ -11,7 +11,8 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserForms from "./components/Admin/UserForms";
 import InvoiceTable from "./components/Invoice/InvoiceTable";
 import ClientManager from "./components/Clients/ClientManager";
-import ReferralList from "./components/ReferralList"; // ✅ NEW
+import ReferralList from "./components/ReferralList"; // ✅ Referrals
+import Layout from "./components/Layout"; // ✅ Layout wrapper
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -149,7 +150,9 @@ function App() {
           path="/referrals"
           element={
             isLoggedIn ? (
-              <ReferralList />
+              <Layout user={user}>
+                <ReferralList />
+              </Layout>
             ) : (
               <Navigate to="/login" />
             )

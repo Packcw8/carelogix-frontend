@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ReferralList() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReferrals = async () => {
       try {
-        const token = localStorage.getItem("auth_token");
+        const token = localStorage.getItem("token");
         const res = await fetch(`${process.env.REACT_APP_API_URL}/referrals/mine`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -29,7 +31,23 @@ export default function ReferralList() {
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded-2xl">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">My Referrals</h2>
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-sm text-gray-600 hover:underline"
+        >
+          ← Back to Dashboard
+        </button>
+        <button
+          onClick={() => navigate("/referrals/upload")}
+          className="bg-orange-500 text-white text-sm px-4 py-2 rounded-xl hover:bg-orange-600"
+        >
+          + Upload Referral
+        </button>
+      </div>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">My Referrals</h2>
+
       {referrals.length === 0 ? (
         <p className="text-center text-gray-600">No referrals found.</p>
       ) : (
