@@ -9,7 +9,7 @@ export default function ReferralList() {
   useEffect(() => {
     const fetchReferrals = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("auth_token");
         const res = await fetch(`${process.env.REACT_APP_API_URL}/referrals/mine`, {
           headers: { Authorization: `Bearer ${token}` },
         });
