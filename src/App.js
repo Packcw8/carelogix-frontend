@@ -13,6 +13,8 @@ import InvoiceTable from "./components/Invoice/InvoiceTable";
 import ClientManager from "./components/Clients/ClientManager";
 import ReferralList from "./components/ReferralList";
 import Layout from "./components/Layout";
+import ReferralUploadForm from "./components/ReferralUploadForm";
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -69,6 +71,8 @@ function App() {
         <Route path="/clients" element={<ClientManager onReturn={() => navigate("/dashboard")} />} />
         <Route path="/referrals" element={<ReferralList />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="/referrals/upload" element={<ReferralUploadForm />} />
+
       </Routes>
     </Layout>
   );
