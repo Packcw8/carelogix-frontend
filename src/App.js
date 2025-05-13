@@ -11,8 +11,8 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import UserForms from "./components/Admin/UserForms";
 import InvoiceTable from "./components/Invoice/InvoiceTable";
 import ClientManager from "./components/Clients/ClientManager";
-import ReferralList from "./components/ReferralList"; // ✅ Referrals
-import Layout from "./components/Layout"; // ✅ Layout wrapper
+import ReferralList from "./components/ReferralList";
+import Layout from "./components/Layout";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -40,127 +40,37 @@ function App() {
     navigate("/login");
   };
 
-  return (
-    <div className="p-8 max-w-4xl mx-auto">
+  if (!isLoggedIn) {
+    return (
       <Routes>
-        <Route
-          path="/"
-          element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />}
-        />
-        <Route
-          path="/login"
-          element={
-            <LoginForm
-              onLogin={() => {
-                setIsLoggedIn(true);
-                const storedUser = localStorage.getItem("user");
-                setUser(storedUser ? JSON.parse(storedUser) : null);
-              }}
-            />
-          }
-        />
+        <Route path="/login" element={<LoginForm onLogin={() => {
+          setIsLoggedIn(true);
+          const storedUser = localStorage.getItem("user");
+          setUser(storedUser ? JSON.parse(storedUser) : null);
+        }} />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route
-          path="/dashboard"
-          element={
-            isLoggedIn ? (
-              <Dashboard onLogout={handleLogout} user={user} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            isLoggedIn ? (
-              <AdminDashboard onLogout={handleLogout} user={user} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/admin/user/:userId"
-          element={
-            isLoggedIn ? (
-              <UserForms />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/form/visit"
-          element={
-            isLoggedIn ? (
-              <>
-                <ProtectedPage />
-                <VisitForm onReturn={() => navigate("/dashboard")} />
-              </>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/form/main_note"
-          element={
-            isLoggedIn ? (
-              <>
-                <ProtectedPage />
-                <MainNoteForm onReturn={() => navigate("/dashboard")} />
-              </>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/myforms"
-          element={
-            isLoggedIn ? (
-              <MyForms onReturn={() => navigate("/dashboard")} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/invoice"
-          element={
-            isLoggedIn ? (
-              <InvoiceTable />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/clients"
-          element={
-            isLoggedIn ? (
-              <ClientManager onReturn={() => navigate("/dashboard")} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/referrals"
-          element={
-            isLoggedIn ? (
-              <Layout user={user}>
-                <ReferralList />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
-    </div>
+    );
+  }
+
+  // ✅ All logged-in pages are now wrapped in Layout
+  return (
+    <Layout user={user}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} user={user} />} />
+        <Route path="/admin" element={<AdminDashboard onLogout={handleLogout} user={user} />} />
+        <Route path="/admin/user/:userId" element={<UserForms />} />
+        <Route path="/form/visit" element={<><ProtectedPage /><VisitForm onReturn={() => navigate("/dashboard")} /></>} />
+        <Route path="/form/main_note" element={<><ProtectedPage /><MainNoteForm onReturn={() => navigate("/dashboard")} /></>} />
+        <Route path="/myforms" element={<MyForms onReturn={() => navigate("/dashboard")} />} />
+        <Route path="/invoice" element={<InvoiceTable />} />
+        <Route path="/clients" element={<ClientManager onReturn={() => navigate("/dashboard")} />} />
+        <Route path="/referrals" element={<ReferralList />} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    </Layout>
   );
 }
 
