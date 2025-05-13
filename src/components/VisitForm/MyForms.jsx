@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Layout from "../Layout";
 import PDFModal from "../PDFModal";
 
 export default function MyForms({ onReturn }) {
@@ -101,12 +100,11 @@ export default function MyForms({ onReturn }) {
       alert("Selected forms do not have valid PDF links.");
       return;
     }
-    // Open first selected PDF in new tab for printing
     window.open(queue[0].download_url_pdf, "_blank");
   };
 
   return (
-    <Layout title="My Submitted Forms">
+    <div className="p-4 max-w-4xl mx-auto">
       {onReturn && (
         <button
           onClick={onReturn}
@@ -227,12 +225,11 @@ export default function MyForms({ onReturn }) {
         </ul>
       )}
 
-      {/* ✅ PDF View Modal */}
       <PDFModal
         url={selectedForm?.download_url_pdf}
         title="Form Preview"
         onClose={() => setSelectedForm(null)}
       />
-    </Layout>
+    </div>
   );
 }
