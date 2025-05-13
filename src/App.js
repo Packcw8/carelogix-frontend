@@ -13,7 +13,7 @@ import InvoiceTable from "./components/Invoice/InvoiceTable";
 import ClientManager from "./components/Clients/ClientManager";
 import ReferralList from "./components/ReferralList";
 import Layout from "./components/Layout";
-import ReferralUpload from "./components/ReferralUploadForm";
+import ReferralUpload from "./components/ReferralUpload";
 
 
 function App() {
