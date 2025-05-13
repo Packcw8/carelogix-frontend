@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PDFModal from "./PDFModal";
 
-
 export default function ReferralList() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,41 +54,54 @@ export default function ReferralList() {
         <p className="text-center text-gray-600">No referrals found.</p>
       ) : (
         <ul className="space-y-4">
-          {referrals.map((ref) => (
-            <li key={ref.id} className="border rounded-lg p-4 shadow-sm bg-gray-50">
-              <p className="font-semibold text-gray-800">{ref.filename}</p>
-              {ref.note && <p className="text-gray-600 italic mb-2">{ref.note}</p>}
+          {referrals.map((ref) => {
+            const isPDF = ref.download_url?.endsWith(".pdf");
+            const isImage = ref.download_url?.match(/\.(jpg|jpeg|png|webp)$/i);
 
-              <div className="flex gap-4 mt-2 flex-wrap">
-                <a
-                  href={ref.download_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  Download
-                </a>
+            return (
+              <li key={ref.id} className="border rounded-lg p-4 shadow-sm bg-gray-50">
+                <p className="font-semibold text-gray-800">{ref.filename}</p>
+                {ref.note && <p className="text-gray-600 italic mb-2">{ref.note}</p>}
 
-                {ref.download_url.endsWith(".pdf") ? (
-                  <button
-                    onClick={() => setSelectedReferral(ref)}
-                    className="text-green-600 underline"
-                  >
-                    View
-                  </button>
-                ) : (
+                <div className="flex gap-4 mt-2 flex-wrap">
                   <a
                     href={ref.download_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-green-600 underline"
+                    className="text-blue-600 underline"
                   >
-                    View
+                    Download
                   </a>
+
+                  {isPDF ? (
+                    <button
+                      onClick={() => setSelectedReferral(ref)}
+                      className="text-green-600 underline"
+                    >
+                      View
+                    </button>
+                  ) : (
+                    <a
+                      href={ref.download_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-600 underline"
+                    >
+                      View
+                    </a>
+                  )}
+                </div>
+
+                {isImage && (
+                  <img
+                    src={ref.download_url}
+                    alt={ref.filename}
+                    className="mt-4 max-h-96 rounded border"
+                  />
                 )}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
 
