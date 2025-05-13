@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PDFModal from "../PDFModal";
 
 export default function ReferralList() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReferral, setSelectedReferral] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,17 +58,46 @@ export default function ReferralList() {
             <li key={ref.id} className="border rounded-lg p-4 shadow-sm bg-gray-50">
               <p className="font-semibold text-gray-800">{ref.filename}</p>
               {ref.note && <p className="text-gray-600 italic mb-2">{ref.note}</p>}
-              <a
-                href={ref.download_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 font-medium hover:underline"
-              >
-                Download
-              </a>
+
+              <div className="flex gap-4 mt-2 flex-wrap">
+                <a
+                  href={ref.download_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  Download
+                </a>
+
+                {ref.download_url.endsWith(".pdf") ? (
+                  <button
+                    onClick={() => setSelectedReferral(ref)}
+                    className="text-green-600 underline"
+                  >
+                    View
+                  </button>
+                ) : (
+                  <a
+                    href={ref.download_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-600 underline"
+                  >
+                    View
+                  </a>
+                )}
+              </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {selectedReferral && selectedReferral.download_url.endsWith(".pdf") && (
+        <PDFModal
+          url={selectedReferral.download_url}
+          title={selectedReferral.filename}
+          onClose={() => setSelectedReferral(null)}
+        />
       )}
     </div>
   );
