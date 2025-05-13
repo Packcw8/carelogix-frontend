@@ -14,6 +14,7 @@ import ClientManager from "./components/Clients/ClientManager";
 import ReferralList from "./components/ReferralList";
 import Layout from "./components/Layout";
 import ReferralUploadForm from "./components/ReferralUploadForm";
+import MyInvoices from "./components/Invoice/MyInvoices";  // ✅ correct path
 
 
 function App() {
@@ -72,6 +73,8 @@ function App() {
         <Route path="/referrals" element={<ReferralList />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
         <Route path="/referrals/upload" element={<ReferralUploadForm />} />
+        <Route path="/Invoices" element={<MyInvoices />} />
+
 
       </Routes>
     </Layout>

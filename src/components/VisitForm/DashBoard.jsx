@@ -37,9 +37,9 @@ export default function Dashboard({ onLogout, user }) {
         />
         <Card
           icon="💵"
-          title="Invoices"
-          description="View weekly billing summary"
-          onClick={() => navigate("/invoice")}
+          title="My Invoices"
+          description="View saved invoices"
+          onClick={() => navigate("/invoices")} // ✅ Updated to match route to MyInvoices
           background="bg-green-100"
         />
         <Card
