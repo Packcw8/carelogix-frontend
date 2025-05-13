@@ -5,8 +5,6 @@ import ServiceCodes from "./ServiceCodes";
 import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
-import Layout from "../Layout";
-import Card from "../Card";
 import { submitForm } from "./submitForm";
 
 export default function VisitForm({ onReturn }) {
@@ -108,9 +106,14 @@ export default function VisitForm({ onReturn }) {
       onNext={() => setStep(step + 1)}
       onBack={() => setStep(step - 1)}
       showFosterQuestions={true}
-      showSkillInputs={false} // ✅ Bypass skill fields
+      showSkillInputs={false}
     />,
-    <ServiceCodes formData={formData} setFormData={setFormData} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
+    <ServiceCodes
+      formData={formData}
+      setFormData={setFormData}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+    />,
     <CheckList
       formData={formData}
       setFormData={setFormData}
@@ -118,12 +121,22 @@ export default function VisitForm({ onReturn }) {
       onBack={() => setStep(step - 1)}
       showFosterQuestion={true}
     />,
-    <TravelSegment segments={segments} setSegments={setSegments} onNext={() => setStep(step + 1)} onBack={() => setStep(step - 1)} />,
-    <SignatureSection formData={formData} setFormData={setFormData} onBack={() => setStep(step - 1)} onSubmit={handleSubmit} />,
+    <TravelSegment
+      segments={segments}
+      setSegments={setSegments}
+      onNext={() => setStep(step + 1)}
+      onBack={() => setStep(step - 1)}
+    />,
+    <SignatureSection
+      formData={formData}
+      setFormData={setFormData}
+      onBack={() => setStep(step - 1)}
+      onSubmit={handleSubmit}
+    />,
   ];
 
   return (
-    <Layout title="Supervised Visit Form">
+    <div className="p-4 max-w-4xl mx-auto">
       {onReturn && (
         <button
           onClick={onReturn}
@@ -149,6 +162,6 @@ export default function VisitForm({ onReturn }) {
       </div>
 
       {steps[step]}
-    </Layout>
+    </div>
   );
 }
