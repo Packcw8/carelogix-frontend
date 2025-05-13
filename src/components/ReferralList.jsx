@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PDFModal from "../PDFModal";
+import PDFModal from "./PDFModal";
+
 
 export default function ReferralList() {
   const [referrals, setReferrals] = useState([]);
