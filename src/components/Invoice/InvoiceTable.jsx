@@ -104,6 +104,12 @@ export default function InvoiceTable() {
     }
   };
 
+  const deleteRow = (index) => {
+    const updated = [...invoiceData];
+    updated.splice(index, 1);
+    setInvoiceData(updated);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <button
@@ -149,6 +155,7 @@ export default function InvoiceTable() {
               <th className="p-2 border">Units</th>
               <th className="p-2 border">Rate</th>
               <th className="p-2 border">Total</th>
+              <th className="p-2 border text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -176,11 +183,20 @@ export default function InvoiceTable() {
                   />
                 </td>
                 <td className="p-2 border text-right">${row.total.toFixed(2)}</td>
+                <td className="p-2 border text-center">
+                  <button
+                    onClick={() => deleteRow(i)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
             <tr className="bg-gray-100 font-semibold">
               <td colSpan="7" className="p-2 text-right border">Total:</td>
               <td className="p-2 border text-right">${totalSum.toFixed(2)}</td>
+              <td className="p-2 border"></td>
             </tr>
           </tbody>
         </table>
