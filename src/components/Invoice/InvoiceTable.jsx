@@ -39,6 +39,12 @@ export default function InvoiceTable() {
     setInvoiceData(updated);
   };
 
+  const deleteRow = (index) => {
+    const updated = [...invoiceData];
+    updated.splice(index, 1);
+    setInvoiceData(updated);
+  };
+
   const totalSum = invoiceData.reduce((sum, row) => sum + (row.total || 0), 0);
 
   const downloadExcel = () => {
@@ -98,16 +104,11 @@ export default function InvoiceTable() {
     );
 
     if (response.ok) {
-      alert("✅ Invoice saved! You can now view it in 'My Invoices'.");
+      alert("✅ Invoice saved! Table has been cleared.");
+      setInvoiceData([]); // ✅ clear table only — do not reset week
     } else {
       alert("❌ Failed to save invoice.");
     }
-  };
-
-  const deleteRow = (index) => {
-    const updated = [...invoiceData];
-    updated.splice(index, 1);
-    setInvoiceData(updated);
   };
 
   return (
