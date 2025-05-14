@@ -10,9 +10,7 @@ export default function MyInvoices() {
     const token = localStorage.getItem("auth_token");
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const res = await fetch(`${apiUrl}/invoices/mine`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.ok) {
@@ -28,16 +26,18 @@ export default function MyInvoices() {
   }, []);
 
   const downloadInvoice = (invoice) => {
-    const rows = invoice.data.map((row) => [
-      row.client_name,
-      row.service,
-      row.service_code,
-      row.case_number,
-      row.client_number,
-      row.units,
-      row.rate,
-      row.total,
-    ]);
+    const rows = invoice.data
+      .filter(row => row.units > 0)  // Optional: only include rows with work done
+      .map((row) => [
+        row.client_name,
+        row.service,
+        row.service_code,
+        row.case_number,
+        row.client_number,
+        row.units,
+        row.rate,
+        row.total,
+      ]);
 
     const sheet = XLSX.utils.aoa_to_sheet([
       [`Provider: You`],
@@ -50,6 +50,24 @@ export default function MyInvoices() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, sheet, "Invoice");
     XLSX.writeFile(wb, `my_invoice_${invoice.start_date}.xlsx`);
+  };
+
+  const deleteInvoice = async (invoice_id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this invoice?");
+    if (!confirmed) return;
+
+    const token = localStorage.getItem("auth_token");
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const res = await fetch(`${apiUrl}/invoices/delete/${invoice_id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      setInvoices(prev => prev.filter(inv => inv.invoice_id !== invoice_id));
+    } else {
+      alert("Failed to delete invoice.");
+    }
   };
 
   return (
@@ -79,12 +97,18 @@ export default function MyInvoices() {
                 <td className="p-2 border">{inv.start_date}</td>
                 <td className="p-2 border">{inv.end_date}</td>
                 <td className="p-2 border text-right">${inv.total.toFixed(2)}</td>
-                <td className="p-2 border text-center">
+                <td className="p-2 border text-center space-x-2">
                   <button
                     onClick={() => downloadInvoice(inv)}
                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
                   >
-                    Download Excel
+                    Download
+                  </button>
+                  <button
+                    onClick={() => deleteInvoice(inv.invoice_id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>

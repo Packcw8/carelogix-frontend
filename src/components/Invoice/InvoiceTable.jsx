@@ -59,16 +59,18 @@ export default function InvoiceTable() {
       ["Client", "Service", "Code", "Case #", "Client #", "Units", "Rate", "Total"],
     ];
 
-    const rows = invoiceData.map((row) => [
-      row.client_name,
-      row.service,
-      row.service_code,
-      row.case_number,
-      row.client_number,
-      row.units,
-      row.rate,
-      row.total,
-    ]);
+    const rows = invoiceData
+      .filter((row) => row.units > 0)
+      .map((row) => [
+        row.client_name,
+        row.service,
+        row.service_code,
+        row.case_number,
+        row.client_number,
+        row.units,
+        row.rate,
+        row.total,
+      ]);
 
     const worksheet = XLSX.utils.aoa_to_sheet([...header, ...rows]);
     const workbook = XLSX.utils.book_new();
@@ -83,14 +85,17 @@ export default function InvoiceTable() {
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
 
-    const response = await fetch(`${apiUrl}/save-invoice?start_date=${weekStart}&end_date=${end.toISOString().split("T")[0]}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(invoiceData),
-    });
+    const response = await fetch(
+      `${apiUrl}/save-invoice?start_date=${weekStart}&end_date=${end.toISOString().split("T")[0]}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(invoiceData),
+      }
+    );
 
     if (response.ok) {
       alert("✅ Invoice saved! You can now view it in 'My Invoices'.");
