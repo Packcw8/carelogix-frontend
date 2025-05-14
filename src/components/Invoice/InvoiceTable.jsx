@@ -17,9 +17,7 @@ export default function InvoiceTable() {
     const token = localStorage.getItem("auth_token");
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const res = await fetch(`${apiUrl}/generate-invoice?week_start=${weekStart}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (res.ok) {
@@ -46,14 +44,11 @@ export default function InvoiceTable() {
   const downloadExcel = () => {
     const fullName = user?.full_name || "Unknown";
     const agency = user?.agency?.name || "Unknown Agency";
-
     const start = new Date(weekStart);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-
     const formatDate = (date) =>
       date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
     const payrollRange = `${formatDate(start)} – ${formatDate(end)}`;
 
     const header = [
@@ -78,8 +73,30 @@ export default function InvoiceTable() {
     const worksheet = XLSX.utils.aoa_to_sheet([...header, ...rows]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Invoice");
-
     XLSX.writeFile(workbook, `invoice_${weekStart}.xlsx`);
+  };
+
+  const finalizeAndSave = async () => {
+    const token = localStorage.getItem("auth_token");
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const start = new Date(weekStart);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    const response = await fetch(`${apiUrl}/save-invoice?start_date=${weekStart}&end_date=${end.toISOString().split("T")[0]}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(invoiceData),
+    });
+
+    if (response.ok) {
+      alert("✅ Invoice saved! You can now view it in 'My Invoices'.");
+    } else {
+      alert("❌ Failed to save invoice.");
+    }
   };
 
   return (
@@ -163,7 +180,15 @@ export default function InvoiceTable() {
           </tbody>
         </table>
       </div>
+
+      <div className="mt-6 text-center">
+        <button
+          onClick={finalizeAndSave}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded text-lg"
+        >
+          Finalize & Save to My Invoices
+        </button>
+      </div>
     </div>
   );
 }
-

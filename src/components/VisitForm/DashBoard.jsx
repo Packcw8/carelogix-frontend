@@ -36,10 +36,17 @@ export default function Dashboard({ onLogout, user }) {
           onClick={() => navigate("/myforms")}
         />
         <Card
+          icon="📊"
+          title="Current Invoice"
+          description="Edit this week's hours + mileage"
+          onClick={() => navigate("/invoice")}
+          background="bg-purple-100"
+        />
+        <Card
           icon="💵"
           title="My Invoices"
           description="View saved invoices"
-          onClick={() => navigate("/invoices")} // ✅ Updated to match route to MyInvoices
+          onClick={() => navigate("/invoices")}
           background="bg-green-100"
         />
         <Card
