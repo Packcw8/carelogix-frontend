@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Mic, MicOff, Sparkles } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 
 export default function InfieldNoteForm() {
   const [clients, setClients] = useState([]);
@@ -7,9 +7,7 @@ export default function InfieldNoteForm() {
   const [caseName, setCaseName] = useState("");
   const [caseNumber, setCaseNumber] = useState("");
   const [content, setContent] = useState("");
-  const [participants, setParticipants] = useState("");
   const [visitDate, setVisitDate] = useState("");
-  const [visitDetails, setVisitDetails] = useState("");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
@@ -58,8 +56,6 @@ export default function InfieldNoteForm() {
       if (!aiRes.ok) throw new Error("AI cleanup failed.");
       const aiData = await aiRes.json();
 
-      setParticipants(aiData.participants || "");
-      setVisitDetails(aiData.visit_details || "");
       setVisitDate(aiData.date !== "unknown" ? aiData.date : "");
 
       const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
@@ -73,8 +69,6 @@ export default function InfieldNoteForm() {
           case_number: caseNumber,
           content,
           cleaned_summary: aiData.cleaned,
-          participants: aiData.participants,
-          visit_details: aiData.visit_details,
           visit_date: aiData.date !== "unknown" ? aiData.date : null,
         }),
       });
@@ -84,9 +78,7 @@ export default function InfieldNoteForm() {
         setCaseName("");
         setCaseNumber("");
         setContent("");
-        setParticipants("");
         setVisitDate("");
-        setVisitDetails("");
         setSelectedClient("");
       } else {
         const error = await saveRes.json();
@@ -166,6 +158,16 @@ export default function InfieldNoteForm() {
           required
         />
 
+        <div>
+          <label className="block font-medium">Visit Date</label>
+          <input
+            type="date"
+            className="w-full p-2 border border-gray-300 rounded"
+            value={visitDate}
+            onChange={(e) => setVisitDate(e.target.value)}
+          />
+        </div>
+
         <label className="block font-medium">Infield Notes</label>
         <textarea
           placeholder="Write or dictate your infield note..."
@@ -197,38 +199,6 @@ export default function InfieldNoteForm() {
           >
             🧠 Clean & Submit Note
           </button>
-        </div>
-
-        <div className="mt-4 space-y-3">
-          <div>
-            <label className="block font-medium">Participants</label>
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={participants}
-              onChange={(e) => setParticipants(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium">Visit Date</label>
-            <input
-              type="date"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={visitDate}
-              onChange={(e) => setVisitDate(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium">Visit Details</label>
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={visitDetails}
-              onChange={(e) => setVisitDetails(e.target.value)}
-            />
-          </div>
         </div>
       </form>
     </div>
