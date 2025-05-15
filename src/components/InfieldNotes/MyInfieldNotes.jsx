@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function MyInfieldNotes() {
   const [notes, setNotes] = useState([]);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const fetchNotes = async () => {
@@ -49,9 +51,24 @@ export default function MyInfieldNotes() {
           <p><strong>Date:</strong> {note.visit_date || "N/A"}</p>
           <p><strong>Summary:</strong> {note.cleaned_summary || "No summary yet."}</p>
           <div className="flex gap-3 mt-2">
-            <button className="text-blue-600 underline">Use in Visit Form</button>
-            <button className="text-purple-600 underline">Use in Main Note</button>
-            <button onClick={() => deleteNote(note.id)} className="text-red-600 underline">Delete</button>
+            <button
+              className="text-blue-600 underline"
+              onClick={() => navigate("/form/visit", { state: { note } })}
+            >
+              Use in Visit Form
+            </button>
+            <button
+              className="text-purple-600 underline"
+              onClick={() => navigate("/form/main_note", { state: { note } })}
+            >
+              Use in Main Note
+            </button>
+            <button
+              onClick={() => deleteNote(note.id)}
+              className="text-red-600 underline"
+            >
+              Delete
+            </button>
           </div>
         </div>
       ))}
