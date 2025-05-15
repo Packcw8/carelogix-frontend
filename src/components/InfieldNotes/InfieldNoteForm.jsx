@@ -204,7 +204,7 @@ export default function InfieldNoteForm() {
 
         <label className="block font-medium">Infield Notes (begin with YYYY-MM-DD and continue in one-liners)</label>
         <textarea
-          placeholder="2025-05-15 Juanita made spaghetti. Provider transported child to school."
+          placeholder="Start with the date (YYYY-MM-DD) and press Enter after each line for a new note"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded h-40"
