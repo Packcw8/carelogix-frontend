@@ -14,7 +14,8 @@ import ClientManager from "./components/Clients/ClientManager";
 import ReferralList from "./components/ReferralList";
 import Layout from "./components/Layout";
 import ReferralUploadForm from "./components/ReferralUploadForm";
-import MyInvoices from "./components/Invoice/MyInvoices";  // ✅ correct path
+import MyInvoices from "./components/Invoice/MyInvoices";
+import InfieldNoteForm from "./components/InfieldNotes/InfieldNoteForm";
 
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
         <Route path="*" element={<Navigate to="/dashboard" />} />
         <Route path="/referrals/upload" element={<ReferralUploadForm />} />
         <Route path="/Invoices" element={<MyInvoices />} />
+        <Route path="/infield-note/new" element={<InfieldNoteForm />} />
 
 
       </Routes>
