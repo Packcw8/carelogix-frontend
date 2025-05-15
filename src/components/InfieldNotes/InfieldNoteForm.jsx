@@ -65,13 +65,23 @@ export default function InfieldNoteForm() {
   };
 
   const handleDateChange = (e) => {
-    const formatted = new Date(e.target.value).toLocaleDateString("en-US", {
+    const rawValue = e.target.value;
+    setVisitDate(rawValue);
+
+    const [year, month, day] = rawValue.split("-");
+    const formatted = new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-    setVisitDate(e.target.value);
-    setContent((prev) => `${formatted}\n${serviceType ? serviceType + "\n" : ""}${prev}`.trim());
+
+    setContent((prev) => {
+      const lines = prev.split("\n").filter(Boolean);
+      const updated = [formatted];
+      if (serviceType) updated.push(serviceType);
+      if (lines.length > 2) updated.push(...lines.slice(2));
+      return updated.join("\n");
+    });
   };
 
   const handleServiceChange = (e) => {
