@@ -8,6 +8,7 @@ export default function InfieldNoteForm() {
   const [caseNumber, setCaseNumber] = useState(() => localStorage.getItem("infield_caseNumber") || "");
   const [content, setContent] = useState(() => localStorage.getItem("infield_content") || "");
   const [visitDate, setVisitDate] = useState("");
+  const [serviceType, setServiceType] = useState("");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [previewSummary, setPreviewSummary] = useState("");
@@ -53,6 +54,7 @@ export default function InfieldNoteForm() {
     setCaseNumber("");
     setContent("");
     setVisitDate("");
+    setServiceType("");
     setSelectedClient("");
     setPreviewSummary("");
     setAwaitingConfirmation(false);
@@ -62,16 +64,27 @@ export default function InfieldNoteForm() {
     localStorage.removeItem("infield_content");
   };
 
-  const prependDateToContent = (date) => {
-    const lines = content.split("\n").filter(Boolean);
-    if (!lines[0]?.match(/^\d{4}-\d{2}-\d{2}/)) {
-      setContent(`${date} ${content}`.trim());
-    }
+  const handleDateChange = (e) => {
+    const formatted = new Date(e.target.value).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    setVisitDate(e.target.value);
+    setContent((prev) => `${formatted}\n${serviceType ? serviceType + "\n" : ""}${prev}`.trim());
   };
 
-  const handleDateChange = (e) => {
-    setVisitDate(e.target.value);
-    prependDateToContent(e.target.value);
+  const handleServiceChange = (e) => {
+    setServiceType(e.target.value);
+    setContent((prev) => {
+      const lines = prev.split("\n");
+      if (lines.length > 1) {
+        lines[1] = e.target.value;
+      } else {
+        lines.splice(1, 0, e.target.value);
+      }
+      return lines.join("\n");
+    });
   };
 
   const extractDateFromContent = (text) => {
@@ -224,7 +237,21 @@ export default function InfieldNoteForm() {
           className="w-full p-2 border border-gray-300 rounded"
         />
 
-        <label className="block font-medium">Infield Notes (start each new note on a new line)</label>
+        <label className="block font-medium">Service Type</label>
+        <select
+          className="w-full p-2 border border-gray-300 rounded"
+          value={serviceType}
+          onChange={handleServiceChange}
+        >
+          <option value="">Select service type</option>
+          <option value="SV1">SV1</option>
+          <option value="ATT">ATT</option>
+          <option value="Transport">Transport</option>
+          <option value="Skill Building">Skill Building</option>
+          <option value="Class">Class</option>
+        </select>
+
+        <label className="block font-medium">Infield Notes</label>
         <textarea
           placeholder="Press Enter after each line for a new note"
           value={content}
