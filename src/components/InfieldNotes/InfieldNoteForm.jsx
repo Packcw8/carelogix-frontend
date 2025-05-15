@@ -44,6 +44,41 @@ export default function InfieldNoteForm() {
     const token = localStorage.getItem("auth_token");
 
     try {
+      const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          case_name: caseName,
+          case_number: caseNumber,
+          content,
+          visit_date: visitDate || null,
+        }),
+      });
+
+      if (saveRes.ok) {
+        setMessage("✅ Note saved successfully.");
+        setCaseName("");
+        setCaseNumber("");
+        setContent("");
+        setVisitDate("");
+        setSelectedClient("");
+      } else {
+        const error = await saveRes.json();
+        setMessage(error.detail || "❌ Saving note failed.");
+      }
+    } catch (err) {
+      console.error("❌ Note submission error:", err);
+      setMessage("❌ Submission failed.");
+    }
+  };
+
+  const handleAIEnhancedSubmit = async () => {
+    const token = localStorage.getItem("auth_token");
+
+    try {
       const aiRes = await fetch(`${apiUrl}/ai/clean-note`, {
         method: "POST",
         headers: {
@@ -74,7 +109,7 @@ export default function InfieldNoteForm() {
       });
 
       if (saveRes.ok) {
-        setMessage("✅ Note submitted and cleaned successfully.");
+        setMessage("✅ AI-enhanced note submitted successfully.");
         setCaseName("");
         setCaseNumber("");
         setContent("");
@@ -85,8 +120,8 @@ export default function InfieldNoteForm() {
         setMessage(error.detail || "❌ Saving note failed.");
       }
     } catch (err) {
-      console.error("❌ Note submission error:", err);
-      setMessage("❌ Submission failed.");
+      console.error("❌ AI-enhanced submission error:", err);
+      setMessage("❌ AI-enhanced submission failed.");
     }
   };
 
@@ -195,9 +230,17 @@ export default function InfieldNoteForm() {
 
           <button
             type="submit"
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            💾 Save Raw Note
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAIEnhancedSubmit}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            🧠 Clean & Submit Note
+            🧠 Clean with AI & Save
           </button>
         </div>
       </form>
