@@ -10,6 +10,8 @@ export default function InfieldNoteForm() {
   const [visitDate, setVisitDate] = useState(() => localStorage.getItem("infield_visitDate") || "");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
+  const [previewSummary, setPreviewSummary] = useState("");
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const recognitionRef = useRef(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -53,6 +55,8 @@ export default function InfieldNoteForm() {
     setContent("");
     setVisitDate("");
     setSelectedClient("");
+    setPreviewSummary("");
+    setAwaitingConfirmation(false);
     localStorage.removeItem("infield_selectedClient");
     localStorage.removeItem("infield_caseName");
     localStorage.removeItem("infield_caseNumber");
@@ -109,32 +113,39 @@ export default function InfieldNoteForm() {
       const aiData = await aiRes.json();
 
       setVisitDate(aiData.date !== "unknown" ? aiData.date : "");
-
-      const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          case_name: caseName,
-          case_number: caseNumber,
-          content,
-          cleaned_summary: aiData.cleaned,
-          visit_date: aiData.date !== "unknown" ? aiData.date : null,
-        }),
-      });
-
-      if (saveRes.ok) {
-        setMessage("✅ AI-enhanced note submitted successfully.");
-        clearForm();
-      } else {
-        const error = await saveRes.json();
-        setMessage(error.detail || "❌ Saving note failed.");
-      }
+      setPreviewSummary(aiData.cleaned);
+      setAwaitingConfirmation(true);
+      setMessage("Preview ready. Review below and confirm save.");
     } catch (err) {
       console.error("❌ AI-enhanced submission error:", err);
       setMessage("❌ AI-enhanced submission failed.");
+    }
+  };
+
+  const confirmSave = async () => {
+    const token = localStorage.getItem("auth_token");
+
+    const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        case_name: caseName,
+        case_number: caseNumber,
+        content,
+        cleaned_summary: previewSummary,
+        visit_date: visitDate || null,
+      }),
+    });
+
+    if (saveRes.ok) {
+      setMessage("✅ Note saved successfully.");
+      clearForm();
+    } else {
+      const error = await saveRes.json();
+      setMessage(error.detail || "❌ Saving note failed.");
     }
   };
 
@@ -229,9 +240,7 @@ export default function InfieldNoteForm() {
           <button
             type="button"
             onClick={toggleRecording}
-            className={`p-2 rounded-full ${
-              recording ? "bg-red-500" : "bg-gray-500"
-            }`}
+            className={`p-2 rounded-full ${recording ? "bg-red-500" : "bg-gray-500"}`}
             title={recording ? "Stop Recording" : "Start Recording"}
           >
             {recording ? (
@@ -245,7 +254,7 @@ export default function InfieldNoteForm() {
             type="submit"
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
-            💾 Save Raw Note
+            📏 Save Raw Note
           </button>
 
           <button
@@ -253,10 +262,23 @@ export default function InfieldNoteForm() {
             onClick={handleAIEnhancedSubmit}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            🧠 Clean with AI & Save
+            🧠 Clean with AI & Preview
           </button>
         </div>
       </form>
+
+      {awaitingConfirmation && (
+        <div className="mt-6 p-4 border border-blue-300 rounded bg-blue-50">
+          <h3 className="font-bold text-lg mb-2">🧠 Preview (Cleaned Summary)</h3>
+          <p className="whitespace-pre-wrap text-gray-800">{previewSummary}</p>
+          <button
+            onClick={confirmSave}
+            className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            ✅ Confirm Save
+          </button>
+        </div>
+      )}
     </div>
   );
 }
