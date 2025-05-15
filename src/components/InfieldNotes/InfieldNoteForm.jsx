@@ -7,6 +7,7 @@ export default function InfieldNoteForm() {
   const [caseName, setCaseName] = useState(() => localStorage.getItem("infield_caseName") || "");
   const [caseNumber, setCaseNumber] = useState(() => localStorage.getItem("infield_caseNumber") || "");
   const [content, setContent] = useState(() => localStorage.getItem("infield_content") || "");
+  const [visitDate, setVisitDate] = useState("");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [previewSummary, setPreviewSummary] = useState("");
@@ -51,6 +52,7 @@ export default function InfieldNoteForm() {
     setCaseName("");
     setCaseNumber("");
     setContent("");
+    setVisitDate("");
     setSelectedClient("");
     setPreviewSummary("");
     setAwaitingConfirmation(false);
@@ -58,6 +60,18 @@ export default function InfieldNoteForm() {
     localStorage.removeItem("infield_caseName");
     localStorage.removeItem("infield_caseNumber");
     localStorage.removeItem("infield_content");
+  };
+
+  const prependDateToContent = (date) => {
+    const lines = content.split("\n").filter(Boolean);
+    if (!lines[0]?.match(/^\d{4}-\d{2}-\d{2}/)) {
+      setContent(`${date} ${content}`.trim());
+    }
+  };
+
+  const handleDateChange = (e) => {
+    setVisitDate(e.target.value);
+    prependDateToContent(e.target.value);
   };
 
   const extractDateFromContent = (text) => {
@@ -202,9 +216,17 @@ export default function InfieldNoteForm() {
           ))}
         </select>
 
-        <label className="block font-medium">Infield Notes (begin with YYYY-MM-DD and continue in one-liners)</label>
+        <label className="block font-medium">Visit Date</label>
+        <input
+          type="date"
+          value={visitDate}
+          onChange={handleDateChange}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+
+        <label className="block font-medium">Infield Notes (start each new note on a new line)</label>
         <textarea
-          placeholder="Start with the date (YYYY-MM-DD) and press Enter after each line for a new note"
+          placeholder="Press Enter after each line for a new note"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded h-40"
