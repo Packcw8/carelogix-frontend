@@ -6,8 +6,12 @@ import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import { submitForm } from "./submitForm";
+import { useLocation } from "react-router-dom";
 
 export default function MainNoteForm({ onReturn }) {
+  const location = useLocation();
+  const passedNote = location.state?.note;
+
   const [step, setStep] = useState(0);
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
@@ -57,6 +61,20 @@ export default function MainNoteForm({ onReturn }) {
       setFormData((prev) => ({ ...prev, provider: user.full_name }));
     }
   }, []);
+
+  useEffect(() => {
+    if (passedNote) {
+      setFormData((prev) => ({
+        ...prev,
+        case_name: passedNote.case_name || "",
+        case_number: passedNote.case_number || "",
+        participants: passedNote.participants || "",
+        summary: passedNote.cleaned_summary || "",
+        visit_details: passedNote.visit_details || "",
+        service_date: passedNote.visit_date || "",
+      }));
+    }
+  }, [passedNote]);
 
   useEffect(() => {
     const fetchClients = async () => {

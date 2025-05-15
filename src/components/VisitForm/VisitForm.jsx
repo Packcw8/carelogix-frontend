@@ -6,8 +6,12 @@ import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import { submitForm } from "./submitForm";
+import { useLocation } from "react-router-dom";
 
 export default function VisitForm({ onReturn }) {
+  const location = useLocation();
+  const passedNote = location.state?.note;
+
   const [step, setStep] = useState(0);
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
@@ -56,7 +60,6 @@ export default function VisitForm({ onReturn }) {
   useEffect(() => {
     const fetchClients = async () => {
       const token = localStorage.getItem("auth_token");
-
       const res = await fetch(`${apiUrl}/clients`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -71,6 +74,20 @@ export default function VisitForm({ onReturn }) {
 
     fetchClients();
   }, [apiUrl]);
+
+  useEffect(() => {
+    if (passedNote) {
+      setFormData((prev) => ({
+        ...prev,
+        case_name: passedNote.case_name || "",
+        case_number: passedNote.case_number || "",
+        participants: passedNote.participants || "",
+        summary: passedNote.cleaned_summary || "",
+        service_date: passedNote.visit_date || "",
+        location: passedNote.visit_details || "",
+      }));
+    }
+  }, [passedNote]);
 
   const handleClientSelect = (clientId) => {
     if (!clientId) {
