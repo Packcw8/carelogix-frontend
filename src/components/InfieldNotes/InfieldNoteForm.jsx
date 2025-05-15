@@ -7,7 +7,6 @@ export default function InfieldNoteForm() {
   const [caseName, setCaseName] = useState(() => localStorage.getItem("infield_caseName") || "");
   const [caseNumber, setCaseNumber] = useState(() => localStorage.getItem("infield_caseNumber") || "");
   const [content, setContent] = useState(() => localStorage.getItem("infield_content") || "");
-  const [visitDate, setVisitDate] = useState(() => localStorage.getItem("infield_visitDate") || "");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [previewSummary, setPreviewSummary] = useState("");
@@ -37,8 +36,7 @@ export default function InfieldNoteForm() {
     localStorage.setItem("infield_caseName", caseName);
     localStorage.setItem("infield_caseNumber", caseNumber);
     localStorage.setItem("infield_content", content);
-    localStorage.setItem("infield_visitDate", visitDate);
-  }, [selectedClient, caseName, caseNumber, content, visitDate]);
+  }, [selectedClient, caseName, caseNumber, content]);
 
   const handleClientSelect = (id) => {
     const client = clients.find((c) => c.id === id);
@@ -53,7 +51,6 @@ export default function InfieldNoteForm() {
     setCaseName("");
     setCaseNumber("");
     setContent("");
-    setVisitDate("");
     setSelectedClient("");
     setPreviewSummary("");
     setAwaitingConfirmation(false);
@@ -61,12 +58,17 @@ export default function InfieldNoteForm() {
     localStorage.removeItem("infield_caseName");
     localStorage.removeItem("infield_caseNumber");
     localStorage.removeItem("infield_content");
-    localStorage.removeItem("infield_visitDate");
+  };
+
+  const extractDateFromContent = (text) => {
+    const dateMatch = text.match(/\d{4}-\d{2}-\d{2}/);
+    return dateMatch ? dateMatch[0] : null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("auth_token");
+    const visitDate = extractDateFromContent(content);
 
     try {
       const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
@@ -112,7 +114,6 @@ export default function InfieldNoteForm() {
       if (!aiRes.ok) throw new Error("AI cleanup failed.");
       const aiData = await aiRes.json();
 
-      setVisitDate(aiData.date !== "unknown" ? aiData.date : "");
       setPreviewSummary(aiData.cleaned);
       setAwaitingConfirmation(true);
       setMessage("Preview ready. Review below and confirm save.");
@@ -124,6 +125,7 @@ export default function InfieldNoteForm() {
 
   const confirmSave = async () => {
     const token = localStorage.getItem("auth_token");
+    const visitDate = extractDateFromContent(content);
 
     const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
       method: "POST",
@@ -200,36 +202,9 @@ export default function InfieldNoteForm() {
           ))}
         </select>
 
-        <input
-          type="text"
-          placeholder="Case Name"
-          value={caseName}
-          onChange={(e) => setCaseName(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Case Number"
-          value={caseNumber}
-          onChange={(e) => setCaseNumber(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-          required
-        />
-
-        <div>
-          <label className="block font-medium">Visit Date</label>
-          <input
-            type="date"
-            className="w-full p-2 border border-gray-300 rounded"
-            value={visitDate}
-            onChange={(e) => setVisitDate(e.target.value)}
-          />
-        </div>
-
-        <label className="block font-medium">Infield Notes</label>
+        <label className="block font-medium">Infield Notes (begin with YYYY-MM-DD and continue in one-liners)</label>
         <textarea
-          placeholder="Write or dictate your infield note..."
+          placeholder="2025-05-15 Juanita made spaghetti. Provider transported child to school."
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded h-40"
@@ -254,7 +229,7 @@ export default function InfieldNoteForm() {
             type="submit"
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
-            📏 Save Raw Note
+            💾 Save Raw Note
           </button>
 
           <button
