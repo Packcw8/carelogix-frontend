@@ -3,11 +3,11 @@ import { Mic, MicOff } from "lucide-react";
 
 export default function InfieldNoteForm() {
   const [clients, setClients] = useState([]);
-  const [selectedClient, setSelectedClient] = useState("");
-  const [caseName, setCaseName] = useState("");
-  const [caseNumber, setCaseNumber] = useState("");
-  const [content, setContent] = useState("");
-  const [visitDate, setVisitDate] = useState("");
+  const [selectedClient, setSelectedClient] = useState(() => localStorage.getItem("infield_selectedClient") || "");
+  const [caseName, setCaseName] = useState(() => localStorage.getItem("infield_caseName") || "");
+  const [caseNumber, setCaseNumber] = useState(() => localStorage.getItem("infield_caseNumber") || "");
+  const [content, setContent] = useState(() => localStorage.getItem("infield_content") || "");
+  const [visitDate, setVisitDate] = useState(() => localStorage.getItem("infield_visitDate") || "");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
@@ -30,6 +30,14 @@ export default function InfieldNoteForm() {
     fetchClients();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("infield_selectedClient", selectedClient);
+    localStorage.setItem("infield_caseName", caseName);
+    localStorage.setItem("infield_caseNumber", caseNumber);
+    localStorage.setItem("infield_content", content);
+    localStorage.setItem("infield_visitDate", visitDate);
+  }, [selectedClient, caseName, caseNumber, content, visitDate]);
+
   const handleClientSelect = (id) => {
     const client = clients.find((c) => c.id === id);
     if (client) {
@@ -37,6 +45,19 @@ export default function InfieldNoteForm() {
       setCaseName(client.case_name);
       setCaseNumber(client.case_number);
     }
+  };
+
+  const clearForm = () => {
+    setCaseName("");
+    setCaseNumber("");
+    setContent("");
+    setVisitDate("");
+    setSelectedClient("");
+    localStorage.removeItem("infield_selectedClient");
+    localStorage.removeItem("infield_caseName");
+    localStorage.removeItem("infield_caseNumber");
+    localStorage.removeItem("infield_content");
+    localStorage.removeItem("infield_visitDate");
   };
 
   const handleSubmit = async (e) => {
@@ -60,11 +81,7 @@ export default function InfieldNoteForm() {
 
       if (saveRes.ok) {
         setMessage("✅ Note saved successfully.");
-        setCaseName("");
-        setCaseNumber("");
-        setContent("");
-        setVisitDate("");
-        setSelectedClient("");
+        clearForm();
       } else {
         const error = await saveRes.json();
         setMessage(error.detail || "❌ Saving note failed.");
@@ -110,11 +127,7 @@ export default function InfieldNoteForm() {
 
       if (saveRes.ok) {
         setMessage("✅ AI-enhanced note submitted successfully.");
-        setCaseName("");
-        setCaseNumber("");
-        setContent("");
-        setVisitDate("");
-        setSelectedClient("");
+        clearForm();
       } else {
         const error = await saveRes.json();
         setMessage(error.detail || "❌ Saving note failed.");
