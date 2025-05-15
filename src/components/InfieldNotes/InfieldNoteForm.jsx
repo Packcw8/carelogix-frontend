@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 export default function InfieldNoteForm() {
   const [caseName, setCaseName] = useState("");
   const [caseNumber, setCaseNumber] = useState("");
   const [content, setContent] = useState("");
   const [message, setMessage] = useState("");
+  const [recording, setRecording] = useState(false);
+  const recognitionRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,13 +26,53 @@ export default function InfieldNoteForm() {
     });
 
     if (response.ok) {
-      setMessage("Note submitted successfully.");
+      setMessage("✅ Note submitted successfully.");
       setCaseName("");
       setCaseNumber("");
       setContent("");
     } else {
       const error = await response.json();
-      setMessage(error.detail || "Something went wrong.");
+      setMessage(error.detail || "❌ Something went wrong.");
+    }
+  };
+
+  const startVoiceInput = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Your browser does not support speech recognition.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setRecording(true);
+    recognition.onend = () => setRecording(false);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setContent((prev) => prev + " " + transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopVoiceInput = () => {
+    recognitionRef.current?.stop();
+  };
+
+  const toggleRecording = () => {
+    if (recording) {
+      stopVoiceInput();
+    } else {
+      startVoiceInput();
     }
   };
 
@@ -55,13 +97,27 @@ export default function InfieldNoteForm() {
           className="w-full p-2 border border-gray-300 rounded"
           required
         />
-        <textarea
-          placeholder="Write your infield note..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded h-40"
-          required
-        />
+
+        <div className="relative">
+          <textarea
+            placeholder="Write or dictate your infield note..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded h-40"
+            required
+          />
+          <button
+            type="button"
+            onClick={toggleRecording}
+            className={`absolute top-2 right-2 p-2 text-white rounded-full ${
+              recording ? "bg-red-500" : "bg-gray-500"
+            }`}
+            title={recording ? "Stop Recording" : "Start Recording"}
+          >
+            🎙️
+          </button>
+        </div>
+
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
