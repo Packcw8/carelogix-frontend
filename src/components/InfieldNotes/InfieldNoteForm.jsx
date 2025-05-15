@@ -7,6 +7,9 @@ export default function InfieldNoteForm() {
   const [caseName, setCaseName] = useState("");
   const [caseNumber, setCaseNumber] = useState("");
   const [content, setContent] = useState("");
+  const [participants, setParticipants] = useState("");
+  const [visitDate, setVisitDate] = useState("");
+  const [visitDetails, setVisitDetails] = useState("");
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
@@ -42,48 +45,56 @@ export default function InfieldNoteForm() {
     e.preventDefault();
     const token = localStorage.getItem("auth_token");
 
-    const res = await fetch(`${apiUrl}/infield-notes/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        case_name: caseName,
-        case_number: caseNumber,
-        content,
-      }),
-    });
+    try {
+      const aiRes = await fetch(`${apiUrl}/ai/clean-note`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
 
-    if (res.ok) {
-      setMessage("✅ Note submitted successfully.");
-      setCaseName("");
-      setCaseNumber("");
-      setContent("");
-      setSelectedClient("");
-    } else {
-      const error = await res.json();
-      setMessage(error.detail || "❌ Submission failed.");
-    }
-  };
+      if (!aiRes.ok) throw new Error("AI cleanup failed.");
+      const aiData = await aiRes.json();
 
-  const handleCleanWithAI = async () => {
-    const token = localStorage.getItem("auth_token");
-    const res = await fetch(`${apiUrl}/ai/clean-note`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ content }),
-    });
+      setParticipants(aiData.participants || "");
+      setVisitDetails(aiData.visit_details || "");
+      setVisitDate(aiData.date !== "unknown" ? aiData.date : "");
 
-    if (res.ok) {
-      const data = await res.json();
-      setContent(data.cleaned);
-      setMessage("🧠 Note cleaned with AI.");
-    } else {
-      setMessage("⚠️ AI cleanup failed.");
+      const saveRes = await fetch(`${apiUrl}/infield-notes/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          case_name: caseName,
+          case_number: caseNumber,
+          content,
+          cleaned_summary: aiData.cleaned,
+          participants: aiData.participants,
+          visit_details: aiData.visit_details,
+          visit_date: aiData.date !== "unknown" ? aiData.date : null,
+        }),
+      });
+
+      if (saveRes.ok) {
+        setMessage("✅ Note submitted and cleaned successfully.");
+        setCaseName("");
+        setCaseNumber("");
+        setContent("");
+        setParticipants("");
+        setVisitDate("");
+        setVisitDetails("");
+        setSelectedClient("");
+      } else {
+        const error = await saveRes.json();
+        setMessage(error.detail || "❌ Saving note failed.");
+      }
+    } catch (err) {
+      console.error("❌ Note submission error:", err);
+      setMessage("❌ Submission failed.");
     }
   };
 
@@ -155,43 +166,70 @@ export default function InfieldNoteForm() {
           required
         />
 
-        <div className="relative">
-          <textarea
-            placeholder="Write or dictate your infield note..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded h-40"
-            required
-          />
-          {/* 🎙️ Voice Button */}
+        <label className="block font-medium">Infield Notes</label>
+        <textarea
+          placeholder="Write or dictate your infield note..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded h-40"
+          required
+        />
+
+        <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={toggleRecording}
-            className={`absolute top-2 right-2 p-2 rounded-full ${
+            className={`p-2 rounded-full ${
               recording ? "bg-red-500" : "bg-gray-500"
             }`}
             title={recording ? "Stop Recording" : "Start Recording"}
           >
-            {recording ? <MicOff className="text-white w-5 h-5" /> : <Mic className="text-white w-5 h-5" />}
+            {recording ? (
+              <MicOff className="text-white w-5 h-5" />
+            ) : (
+              <Mic className="text-white w-5 h-5" />
+            )}
           </button>
 
-          {/* ✨ AI Clean Button */}
           <button
-            type="button"
-            onClick={handleCleanWithAI}
-            className="absolute top-2 right-12 p-2 rounded-full bg-purple-600 hover:bg-purple-700"
-            title="Clean with GPT"
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            <Sparkles className="text-white w-5 h-5" />
+            🧠 Clean & Submit Note
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Submit Note
-        </button>
+        <div className="mt-4 space-y-3">
+          <div>
+            <label className="block font-medium">Participants</label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={participants}
+              onChange={(e) => setParticipants(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Visit Date</label>
+            <input
+              type="date"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={visitDate}
+              onChange={(e) => setVisitDate(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Visit Details</label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={visitDetails}
+              onChange={(e) => setVisitDetails(e.target.value)}
+            />
+          </div>
+        </div>
       </form>
     </div>
   );
