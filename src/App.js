@@ -16,6 +16,7 @@ import Layout from "./components/Layout";
 import ReferralUploadForm from "./components/ReferralUploadForm";
 import MyInvoices from "./components/Invoice/MyInvoices";
 import InfieldNoteForm from "./components/InfieldNotes/InfieldNoteForm";
+import MyInfieldNotes from "./components/InfieldNotes/MyInfieldNotes";
 
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
         <Route path="/referrals/upload" element={<ReferralUploadForm />} />
         <Route path="/Invoices" element={<MyInvoices />} />
         <Route path="/infield-note/new" element={<InfieldNoteForm />} />
+        <Route path="/infield-notes/mine" element={<MyInfieldNotes />} />
 
 
       </Routes>

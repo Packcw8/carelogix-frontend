@@ -37,6 +37,13 @@ export default function Dashboard({ onLogout, user }) {
           background="bg-emerald-100"
         />
         <Card
+          icon="🗃️"
+          title="My Infield Notes"
+          description="Review and reuse field notes"
+          onClick={() => navigate("/infield-notes/mine")}
+          background="bg-orange-100"
+        />
+        <Card
           icon="📂"
           title="My Forms"
           description="View past submissions"
