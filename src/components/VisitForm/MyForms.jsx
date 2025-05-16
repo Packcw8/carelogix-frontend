@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import PDFModal from "../PDFModal";
 
 const formatPrettyDate = (dateString) => {
-  const d = new Date(dateString);
-  return d.toLocaleDateString("en-US", {
+  if (!dateString) return "Unknown";
+  const [year, month, day] = dateString.split("T")[0].split("-");
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+};);
 };
 
 export default function MyForms({ onReturn }) {
@@ -68,13 +71,15 @@ export default function MyForms({ onReturn }) {
     if (filterType === "day") {
       return d.toDateString() === selected.toDateString();
     } else if (filterType === "week") {
-      const day = selected.getDay();
-      const start = new Date(selected);
-      start.setDate(selected.getDate() - day); // Sunday
-      const end = new Date(start);
-      end.setDate(start.getDate() + 6); // Saturday
-      return d >= start && d <= end;
-    } else if (filterType === "month") {
+  const day = selected.getDay();
+  const start = new Date(selected);
+  start.setDate(selected.getDate() - day); // Sunday
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6); // Saturday
+  end.setHours(23, 59, 59, 999);
+  return d >= start && d <= end;
+} else if (filterType === "month") {
       return d.getMonth() === selected.getMonth();
     }
     return true;
@@ -82,7 +87,7 @@ export default function MyForms({ onReturn }) {
 
   const filteredForms = forms.filter((form) => {
     if (!searchTriggered) return true;
-    const matchesDate = isInDateRange(form.service_date);
+    const matchesDate = isInDateRange(form.context?.service_date || form.service_date);
     const matchesSearch = [form.case_name, form.case_number]
       .join(" ")
       .toLowerCase()

@@ -10,12 +10,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-// ✅ Bulletproof fix: extract raw date string without triggering time zone conversion
+// ✅ Format for input value (YYYY-MM-DD)
 function formatLocalDate(dateString) {
-  if (typeof dateString === "string" && dateString.includes("T")) {
-    return dateString.split("T")[0]; // e.g., "2025-05-15"
-  }
-  return dateString || "";
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("T")[0].split("-");
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+// ✅ Format for display: "May 15, 2025"
+function formatPrettyDate(dateString) {
+  if (!dateString) return "Unknown";
+  const [year, month, day] = dateString.split("T")[0].split("-");
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 export default function VisitForm({ onReturn }) {
@@ -205,6 +216,13 @@ export default function VisitForm({ onReturn }) {
           ))}
         </select>
       </div>
+
+      {/* ✅ Display selected date in pretty format */}
+      {formData.service_date && (
+        <p className="mb-4 text-gray-700">
+          <strong>Selected Date:</strong> {formatPrettyDate(formData.service_date)}
+        </p>
+      )}
 
       {steps[step]}
     </div>
