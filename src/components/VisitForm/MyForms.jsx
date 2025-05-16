@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import PDFModal from "../PDFModal";
 
+const formatPrettyDate = (dateString) => {
+  const d = new Date(dateString);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 export default function MyForms({ onReturn }) {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
@@ -60,11 +69,10 @@ export default function MyForms({ onReturn }) {
       return d.toDateString() === selected.toDateString();
     } else if (filterType === "week") {
       const day = selected.getDay();
-      const offset = (day < 5 ? -((day + 2) % 7) : 5);
       const start = new Date(selected);
-      start.setDate(selected.getDate() - offset);
+      start.setDate(selected.getDate() - day); // Sunday
       const end = new Date(start);
-      end.setDate(start.getDate() + 6);
+      end.setDate(start.getDate() + 6); // Saturday
       return d >= start && d <= end;
     } else if (filterType === "month") {
       return d.getMonth() === selected.getMonth();
@@ -181,7 +189,7 @@ export default function MyForms({ onReturn }) {
                   <p><strong>Case:</strong> {form.case_name || "Unknown"}</p>
                   <p><strong>Case #:</strong> {form.case_number || "Unknown"}</p>
                   <p><strong>Type:</strong> {form.form_type}</p>
-                  <p><strong>Date:</strong> {form.service_date || "Unknown"}</p>
+                  <p><strong>Date:</strong> {formatPrettyDate(form.context?.service_date || form.service_date)}</p>
                   <p className={`text-sm ${form.download_url_pdf ? "text-green-600" : "text-red-600"}`}>
                     <strong>PDF URL Exists:</strong> {form.download_url_pdf ? "✅" : "❌"}
                   </p>
