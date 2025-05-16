@@ -4,12 +4,20 @@ import PDFModal from "../PDFModal";
 const formatPrettyDate = (dateString) => {
   if (!dateString) return "Unknown";
   try {
-    const [year, month, day] = dateString.split("T")[0].split("-");
-    return new Date(`${year}-${month}-${day}T12:00:00`).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    if (dateString.includes("T")) {
+      const [year, month, day] = dateString.split("T")[0].split("-");
+      return new Date(`${year}-${month}-${day}T12:00:00`).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } else {
+      return new Date(Date.parse(dateString)).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
   } catch {
     return "Invalid Date";
   }
@@ -58,7 +66,10 @@ export default function MyForms({ onReturn }) {
   };
 
   const isInDateRange = (formDate) => {
-    const d = new Date(formDate);
+    let d = new Date(formDate);
+    if (isNaN(d) && formDate?.includes(",")) {
+      d = new Date(Date.parse(formDate));
+    }
     const selected = new Date(filterDate);
     if (isNaN(d) || isNaN(selected)) return false;
 
