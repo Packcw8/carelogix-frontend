@@ -51,7 +51,14 @@ export default function InvoiceTable() {
 
   const handleEdit = (index, field, value) => {
     const updated = [...invoiceData];
-    updated[index][field] = field === "units" || field === "rate" ? parseFloat(value) || 0 : value;
+    if (field === "client_name") {
+      const selectedClient = clients.find(c => c.case_name === value);
+      updated[index]["client_name"] = value;
+      updated[index]["case_number"] = selectedClient?.case_number || "";
+      updated[index]["client_number"] = selectedClient?.client_number || "";
+    } else {
+      updated[index][field] = field === "units" || field === "rate" ? parseFloat(value) || 0 : value;
+    }
     updated[index].total = +(updated[index].units * updated[index].rate).toFixed(2);
     setInvoiceData(updated);
   };
@@ -188,17 +195,11 @@ export default function InvoiceTable() {
                   </select>
                 </td>
                 <td className="p-2 border">
-                  <select
+                  <input
                     value={row.service}
                     onChange={(e) => handleEdit(i, "service", e.target.value)}
                     className="w-36 border px-1 rounded"
-                  >
-                    <option value="">Select</option>
-                    <option value="Supervised Visit">Supervised Visit</option>
-                    <option value="ITT">ITT</option>
-                    <option value="MDT">MDT</option>
-                    <option value="Mileage">Mileage</option>
-                  </select>
+                  />
                 </td>
                 <td className="p-2 border">
                   <input
@@ -212,6 +213,7 @@ export default function InvoiceTable() {
                     value={row.case_number}
                     onChange={(e) => handleEdit(i, "case_number", e.target.value)}
                     className="w-24 border px-1 rounded"
+                    readOnly
                   />
                 </td>
                 <td className="p-2 border">
@@ -219,6 +221,7 @@ export default function InvoiceTable() {
                     value={row.client_number}
                     onChange={(e) => handleEdit(i, "client_number", e.target.value)}
                     className="w-24 border px-1 rounded"
+                    readOnly
                   />
                 </td>
                 <td className="p-2 border">
