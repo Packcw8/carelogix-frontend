@@ -86,7 +86,8 @@ export default function VisitForm({ onReturn }) {
         case_number: passedNote.case_number || "",
         participants: passedNote.participants || "",
         summary: passedNote.cleaned_summary || "",
-        service_date: prev.service_date || passedNote.visit_date || "",
+        service_date:
+          prev.service_date || (passedNote.visit_date ? passedNote.visit_date.split("T")[0] : ""),
         location: passedNote.visit_details || "",
       }));
     }

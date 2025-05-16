@@ -74,7 +74,8 @@ export default function MainNoteForm({ onReturn }) {
         participants: passedNote.participants || "",
         summary: passedNote.cleaned_summary || "",
         visit_details: passedNote.visit_details || "",
-        service_date: passedNote.visit_date || "",
+        service_date:
+          prev.service_date || (passedNote.visit_date ? passedNote.visit_date.split("T")[0] : ""),
       }));
     }
   }, [passedNote]);
