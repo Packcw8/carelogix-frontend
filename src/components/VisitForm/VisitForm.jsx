@@ -6,10 +6,13 @@ import CheckList from "./CheckList";
 import TravelSegment from "./TravelSegment";
 import SignatureSection from "./Signature";
 import { submitForm } from "./submitForm";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function VisitForm({ onReturn }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const passedNote = location.state?.note;
 
   const [step, setStep] = useState(0);
@@ -107,12 +110,24 @@ export default function VisitForm({ onReturn }) {
   };
 
   const handleSubmit = async (finalData) => {
+    const confirmSave = window.confirm("Are you sure you want to save?");
+    if (!confirmSave) return;
+
     await submitForm({
       formData: finalData,
       segments,
       templateName: "supervised_visit.docx",
       formType: "Supervised Visit",
     });
+
+    toast.success("Form saved! Redirecting to My Forms...", {
+      position: "top-right",
+      autoClose: 2500,
+    });
+
+    setTimeout(() => {
+      navigate("/myforms");
+    }, 2600);
   };
 
   const steps = [
@@ -149,11 +164,13 @@ export default function VisitForm({ onReturn }) {
       setFormData={setFormData}
       onBack={() => setStep(step - 1)}
       onSubmit={handleSubmit}
+      submitLabel="Save Form"
     />,
   ];
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
+      <ToastContainer />
       {onReturn && (
         <button
           onClick={onReturn}
