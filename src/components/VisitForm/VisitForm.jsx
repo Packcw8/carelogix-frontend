@@ -14,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function formatPrettyDate(dateString) {
   if (!dateString) return "Unknown";
   const [year, month, day] = dateString.split("T")[0].split("-");
-  return new Date(`${year}-${month}-${day}T12:00:00`).toLocaleDateString("en-US", {
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
