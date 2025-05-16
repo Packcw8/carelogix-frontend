@@ -10,7 +10,6 @@ const formatPrettyDate = (dateString) => {
     month: "long",
     day: "numeric",
   });
-};);
 };
 
 export default function MyForms({ onReturn }) {
@@ -23,11 +22,6 @@ export default function MyForms({ onReturn }) {
   const [searchTriggered, setSearchTriggered] = useState(false);
 
   const apiUrl = process.env.REACT_APP_API_URL;
-  if (!apiUrl) {
-    console.error("❌ REACT_APP_API_URL is not defined.");
-    throw new Error("REACT_APP_API_URL is missing.");
-  }
-
   const token = localStorage.getItem("auth_token");
 
   useEffect(() => {
@@ -38,7 +32,6 @@ export default function MyForms({ onReturn }) {
     const res = await fetch(`${apiUrl}/forms/mine`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     if (res.ok) {
       const data = await res.json();
       setForms(data);
@@ -50,12 +43,10 @@ export default function MyForms({ onReturn }) {
   const handleDelete = async (formId) => {
     const confirmed = window.confirm("Are you sure you want to delete this form?");
     if (!confirmed) return;
-
     const res = await fetch(`${apiUrl}/forms/${formId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
-
     if (res.ok) {
       setForms(forms.filter((f) => f.id !== formId));
     } else {
@@ -71,16 +62,18 @@ export default function MyForms({ onReturn }) {
     if (filterType === "day") {
       return d.toDateString() === selected.toDateString();
     } else if (filterType === "week") {
-  const day = selected.getDay();
-  const start = new Date(selected);
-  start.setDate(selected.getDate() - day); // Sunday
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6); // Saturday
-  end.setHours(23, 59, 59, 999);
-  return d >= start && d <= end;
-} else if (filterType === "month") {
-      return d.getMonth() === selected.getMonth();
+      const day = selected.getDay();
+      const start = new Date(selected);
+      start.setDate(start.getDate() - day); // Sunday
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6); // Saturday
+      end.setHours(23, 59, 59, 999);
+      return d >= start && d <= end;
+    } else if (filterType === "month") {
+      return d.getMonth() === selected.getMonth() && d.getFullYear() === selected.getFullYear();
+    } else if (filterType === "year") {
+      return d.getFullYear() === selected.getFullYear();
     }
     return true;
   };
