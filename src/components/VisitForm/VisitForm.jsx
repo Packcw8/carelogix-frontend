@@ -10,23 +10,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-// ✅ Format for input value (YYYY-MM-DD)
-function formatLocalDate(dateString) {
-  if (!dateString) return "";
-  const [year, month, day] = dateString.split("T")[0].split("-");
-  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-}
-
-// ✅ Format for display: "May 15, 2025"
+// ✅ Format date for human display (timezone-safe)
 function formatPrettyDate(dateString) {
   if (!dateString) return "Unknown";
   const [year, month, day] = dateString.split("T")[0].split("-");
-  const date = new Date(year, month - 1, day);
-  return date.toLocaleDateString("en-US", {
+  return new Date(`${year}-${month}-${day}T12:00:00`).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+}
+
+function formatLocalDate(dateString) {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("T")[0].split("-");
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
 
 export default function VisitForm({ onReturn }) {
@@ -217,7 +215,6 @@ export default function VisitForm({ onReturn }) {
         </select>
       </div>
 
-      {/* ✅ Display selected date in pretty format */}
       {formData.service_date && (
         <p className="mb-4 text-gray-700">
           <strong>Selected Date:</strong> {formatPrettyDate(formData.service_date)}
