@@ -5,13 +5,9 @@ export async function submitForm({ formData, segments, templateName, formType })
     throw new Error("Missing service_date in formData.");
   }
 
-  const parsedDate = new Date(formData.service_date);
-  if (isNaN(parsedDate.getTime())) {
-    alert("❌ Invalid service date format.");
-    throw new Error("Invalid service_date format.");
-  }
-
-  const formattedDate = parsedDate.toLocaleDateString("en-US", {
+  // ✅ Fix timezone issue when formatting date
+  const [year, month, day] = formData.service_date.split("-");
+  const formattedDate = new Date(`${year}-${month}-${day}T12:00:00`).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
