@@ -34,7 +34,7 @@ export default function InvoiceTable() {
 
   const handleEdit = (index, field, value) => {
     const updated = [...invoiceData];
-    updated[index][field] = parseFloat(value) || 0;
+    updated[index][field] = field === "units" || field === "rate" ? parseFloat(value) || 0 : value;
     updated[index].total = +(updated[index].units * updated[index].rate).toFixed(2);
     setInvoiceData(updated);
   };
@@ -43,6 +43,19 @@ export default function InvoiceTable() {
     const updated = [...invoiceData];
     updated.splice(index, 1);
     setInvoiceData(updated);
+  };
+
+  const addRow = () => {
+    setInvoiceData([...invoiceData, {
+      client_name: "",
+      service: "",
+      service_code: "",
+      case_number: "",
+      client_number: "",
+      units: 0,
+      rate: 0,
+      total: 0,
+    }]);
   };
 
   const totalSum = invoiceData.reduce((sum, row) => sum + (row.total || 0), 0);
@@ -105,7 +118,7 @@ export default function InvoiceTable() {
 
     if (response.ok) {
       alert("✅ Invoice saved! Table has been cleared.");
-      setInvoiceData([]); // ✅ clear table only — do not reset week
+      setInvoiceData([]);
     } else {
       alert("❌ Failed to save invoice.");
     }
@@ -130,17 +143,14 @@ export default function InvoiceTable() {
           value={weekStart}
           onChange={(e) => setWeekStart(e.target.value)}
         />
-        <button
-          onClick={fetchInvoice}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
+        <button onClick={fetchInvoice} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
           Refresh
         </button>
-        <button
-          onClick={downloadExcel}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
+        <button onClick={downloadExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
           Download Excel
+        </button>
+        <button onClick={addRow} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+          Add Entry
         </button>
       </div>
 
@@ -162,11 +172,47 @@ export default function InvoiceTable() {
           <tbody>
             {invoiceData.map((row, i) => (
               <tr key={i} className="even:bg-gray-50">
-                <td className="p-2 border">{row.client_name}</td>
-                <td className="p-2 border">{row.service}</td>
-                <td className="p-2 border">{row.service_code}</td>
-                <td className="p-2 border">{row.case_number}</td>
-                <td className="p-2 border">{row.client_number}</td>
+                <td className="p-2 border">
+                  <input
+                    value={row.client_name}
+                    onChange={(e) => handleEdit(i, "client_name", e.target.value)}
+                    className="w-40 border px-1 rounded"
+                  />
+                </td>
+                <td className="p-2 border">
+                  <select
+                    value={row.service}
+                    onChange={(e) => handleEdit(i, "service", e.target.value)}
+                    className="w-36 border px-1 rounded"
+                  >
+                    <option value="">Select</option>
+                    <option value="Supervised Visit">Supervised Visit</option>
+                    <option value="ITT">ITT</option>
+                    <option value="MDT">MDT</option>
+                    <option value="Mileage">Mileage</option>
+                  </select>
+                </td>
+                <td className="p-2 border">
+                  <input
+                    value={row.service_code}
+                    onChange={(e) => handleEdit(i, "service_code", e.target.value)}
+                    className="w-24 border px-1 rounded"
+                  />
+                </td>
+                <td className="p-2 border">
+                  <input
+                    value={row.case_number}
+                    onChange={(e) => handleEdit(i, "case_number", e.target.value)}
+                    className="w-24 border px-1 rounded"
+                  />
+                </td>
+                <td className="p-2 border">
+                  <input
+                    value={row.client_number}
+                    onChange={(e) => handleEdit(i, "client_number", e.target.value)}
+                    className="w-24 border px-1 rounded"
+                  />
+                </td>
                 <td className="p-2 border">
                   <input
                     type="number"
