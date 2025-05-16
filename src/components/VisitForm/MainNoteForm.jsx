@@ -83,7 +83,9 @@ export default function MainNoteForm({ onReturn }) {
         summary: passedNote.cleaned_summary || "",
         visit_details: passedNote.visit_details || "",
         service_date:
-          prev.service_date || formatLocalDate(passedNote.visit_date),
+          prev.service_date && prev.service_date !== ""
+            ? prev.service_date
+            : formatLocalDate(passedNote.visit_date),
       }));
     }
   }, [passedNote]);

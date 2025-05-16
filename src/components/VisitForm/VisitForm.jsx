@@ -95,7 +95,9 @@ export default function VisitForm({ onReturn }) {
         participants: passedNote.participants || "",
         summary: passedNote.cleaned_summary || "",
         service_date:
-          prev.service_date || formatLocalDate(passedNote.visit_date),
+          prev.service_date && prev.service_date !== ""
+            ? prev.service_date
+            : formatLocalDate(passedNote.visit_date),
         location: passedNote.visit_details || "",
       }));
     }

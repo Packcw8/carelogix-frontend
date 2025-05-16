@@ -5,6 +5,9 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ✅ Debug line to verify correct date formatting (optional, remove after testing)
+  console.log("DEBUG: formData.service_date =", formData.service_date);
+
   return (
     <form
       onSubmit={(e) => {
@@ -17,12 +20,21 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
 
       {["case_name", "case_number", "client_number", "service_date", "start_time", "stop_time", "location"].map((key) => (
         <div key={key}>
-          <label className="block font-medium capitalize">{key.replace(/_/g, " ")}</label>
+          <label className="block font-medium capitalize">
+            {key.replace(/_/g, " ")}
+          </label>
           <input
-            type={key.includes("date") ? "date" : key.includes("time") ? "time" : "text"}
+            type={
+              key.includes("date")
+                ? "date"
+                : key.includes("time")
+                ? "time"
+                : "text"
+            }
             name={key}
             value={formData[key] || ""}
             onChange={handleChange}
+            step={key.includes("time") ? "900" : undefined} // ✅ 15-minute time block
             className="w-full border rounded px-3 py-1"
           />
         </div>
@@ -37,4 +49,3 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
     </form>
   );
 }
-
