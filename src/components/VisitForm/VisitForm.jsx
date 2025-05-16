@@ -10,6 +10,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
+function formatLocalDate(dateString) {
+  const d = new Date(dateString);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function VisitForm({ onReturn }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,7 +92,7 @@ export default function VisitForm({ onReturn }) {
         participants: passedNote.participants || "",
         summary: passedNote.cleaned_summary || "",
         service_date:
-          prev.service_date || (passedNote.visit_date ? passedNote.visit_date.split("T")[0] : ""),
+          prev.service_date || (passedNote.visit_date ? formatLocalDate(passedNote.visit_date) : ""),
         location: passedNote.visit_details || "",
       }));
     }
