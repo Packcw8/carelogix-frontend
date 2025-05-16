@@ -1,12 +1,26 @@
 import React from "react";
 
+function generateTimeOptions() {
+  const options = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let min = 0; min < 60; min += 15) {
+      const date = new Date(0, 0, 0, hour, min);
+      const value = date.toTimeString().slice(0, 5); // "HH:MM"
+      const label = date.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }); // "1:15 PM"
+      options.push({ value, label });
+    }
+  }
+  return options;
+}
+
 export default function CaseInfo({ formData, setFormData, onNext }) {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  // ✅ Debug line to verify correct date formatting (optional, remove after testing)
-  console.log("DEBUG: formData.service_date =", formData.service_date);
 
   return (
     <form
@@ -23,20 +37,30 @@ export default function CaseInfo({ formData, setFormData, onNext }) {
           <label className="block font-medium capitalize">
             {key.replace(/_/g, " ")}
           </label>
-          <input
-            type={
-              key.includes("date")
-                ? "date"
-                : key.includes("time")
-                ? "time"
-                : "text"
-            }
-            name={key}
-            value={formData[key] || ""}
-            onChange={handleChange}
-            step={key.includes("time") ? "900" : undefined} // ✅ 15-minute time block
-            className="w-full border rounded px-3 py-1"
-          />
+
+          {key.includes("time") ? (
+            <select
+              name={key}
+              value={formData[key] || ""}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-1"
+            >
+              <option value="">-- Select Time --</option>
+              {generateTimeOptions().map((time) => (
+                <option key={time.value} value={time.value}>
+                  {time.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={key.includes("date") ? "date" : "text"}
+              name={key}
+              value={formData[key] || ""}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-1"
+            />
+          )}
         </div>
       ))}
 
