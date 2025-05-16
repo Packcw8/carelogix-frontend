@@ -3,7 +3,11 @@ import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 
 export default function InvoiceTable() {
-  const [invoiceData, setInvoiceData] = useState([]);
+  const [invoiceData, setInvoiceData] = useState(() => {
+    const saved = localStorage.getItem("invoiceDataTemp");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [clients, setClients] = useState([]);
   const [weekStart, setWeekStart] = useState(() => {
     const today = new Date();
     const friday = new Date(today.setDate(today.getDate() - ((today.getDay() + 1) % 7)));
@@ -12,14 +16,23 @@ export default function InvoiceTable() {
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("auth_token");
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  const fetchClients = async () => {
+    const res = await fetch(`${apiUrl}/clients`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setClients(data);
+    }
+  };
 
   const fetchInvoice = async () => {
-    const token = localStorage.getItem("auth_token");
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const res = await fetch(`${apiUrl}/generate-invoice?week_start=${weekStart}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     if (res.ok) {
       const data = await res.json();
       setInvoiceData(data);
@@ -29,8 +42,12 @@ export default function InvoiceTable() {
   };
 
   useEffect(() => {
-    fetchInvoice();
-  }, [weekStart]);
+    fetchClients();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("invoiceDataTemp", JSON.stringify(invoiceData));
+  }, [invoiceData]);
 
   const handleEdit = (index, field, value) => {
     const updated = [...invoiceData];
@@ -66,14 +83,18 @@ export default function InvoiceTable() {
     const start = new Date(weekStart);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
+    const savedDate = new Date();
+
     const formatDate = (date) =>
       date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     const payrollRange = `${formatDate(start)} – ${formatDate(end)}`;
+    const savedOn = `Saved On: ${formatDate(savedDate)}`;
 
     const header = [
       ["Provider:", fullName],
       ["Agency:", agency],
       ["Payroll Period:", payrollRange],
+      [savedOn],
       [],
       ["Client", "Service", "Code", "Case #", "Client #", "Units", "Rate", "Total"],
     ];
@@ -98,8 +119,6 @@ export default function InvoiceTable() {
   };
 
   const finalizeAndSave = async () => {
-    const token = localStorage.getItem("auth_token");
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const start = new Date(weekStart);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
@@ -119,6 +138,7 @@ export default function InvoiceTable() {
     if (response.ok) {
       alert("✅ Invoice saved! Table has been cleared.");
       setInvoiceData([]);
+      localStorage.removeItem("invoiceDataTemp");
     } else {
       alert("❌ Failed to save invoice.");
     }
@@ -126,32 +146,15 @@ export default function InvoiceTable() {
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
-      >
-        ← Back to Dashboard
-      </button>
-
+      <button onClick={() => navigate("/dashboard")} className="mb-4 bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded">← Back to Dashboard</button>
       <h2 className="text-2xl font-bold mb-4 text-center">Weekly Invoice</h2>
 
       <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <label className="font-medium">Week of:</label>
-        <input
-          type="date"
-          className="border px-2 py-1 rounded"
-          value={weekStart}
-          onChange={(e) => setWeekStart(e.target.value)}
-        />
-        <button onClick={fetchInvoice} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          Refresh
-        </button>
-        <button onClick={downloadExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-          Download Excel
-        </button>
-        <button onClick={addRow} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
-          Add Entry
-        </button>
+        <input type="date" className="border px-2 py-1 rounded" value={weekStart} onChange={(e) => setWeekStart(e.target.value)} />
+        <button onClick={fetchInvoice} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Refresh</button>
+        <button onClick={downloadExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Download Excel</button>
+        <button onClick={addRow} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Add Entry</button>
       </div>
 
       <div className="overflow-x-auto border rounded-lg shadow-sm">
@@ -173,11 +176,16 @@ export default function InvoiceTable() {
             {invoiceData.map((row, i) => (
               <tr key={i} className="even:bg-gray-50">
                 <td className="p-2 border">
-                  <input
+                  <select
                     value={row.client_name}
                     onChange={(e) => handleEdit(i, "client_name", e.target.value)}
                     className="w-40 border px-1 rounded"
-                  />
+                  >
+                    <option value="">Select</option>
+                    {clients.map((c) => (
+                      <option key={c.id} value={c.case_name}>{c.case_name}</option>
+                    ))}
+                  </select>
                 </td>
                 <td className="p-2 border">
                   <select
