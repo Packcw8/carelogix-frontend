@@ -10,9 +10,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
+// ✅ Prevent timezone issues by extracting raw date
 function formatLocalDate(dateString) {
-  const d = new Date(dateString);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  if (typeof dateString === "string" && dateString.includes("T")) {
+    return dateString.split("T")[0];
+  }
+  return dateString || "";
 }
 
 export default function MainNoteForm({ onReturn }) {
@@ -80,7 +83,7 @@ export default function MainNoteForm({ onReturn }) {
         summary: passedNote.cleaned_summary || "",
         visit_details: passedNote.visit_details || "",
         service_date:
-          prev.service_date || (passedNote.visit_date ? formatLocalDate(passedNote.visit_date) : ""),
+          prev.service_date || formatLocalDate(passedNote.visit_date),
       }));
     }
   }, [passedNote]);
