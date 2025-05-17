@@ -52,7 +52,10 @@ export default function MonthlySummaryForm({ onReturn }) {
     if (!confirm) return;
 
     await submitForm({
-      formData: finalData,
+      formData: {
+        ...finalData,
+        service_date: finalData.service_month || new Date().toISOString().split("T")[0]
+      },
       segments: [],
       templateName: "monthlysummary.docx",
       formType: "Monthly Summary",
