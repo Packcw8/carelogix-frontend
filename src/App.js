@@ -17,7 +17,7 @@ import ReferralUploadForm from "./components/ReferralUploadForm";
 import MyInvoices from "./components/Invoice/MyInvoices";
 import InfieldNoteForm from "./components/InfieldNotes/InfieldNoteForm";
 import MyInfieldNotes from "./components/InfieldNotes/MyInfieldNotes";
-
+import MonthlySummaryForm from "./components/MonthlySummary/MonthlySummaryForm"; // ✅ NEW
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -59,7 +59,6 @@ function App() {
     );
   }
 
-  // ✅ All logged-in pages are now wrapped in Layout
   return (
     <Layout user={user}>
       <Routes>
@@ -69,17 +68,16 @@ function App() {
         <Route path="/admin/user/:userId" element={<UserForms />} />
         <Route path="/form/visit" element={<><ProtectedPage /><VisitForm onReturn={() => navigate("/dashboard")} /></>} />
         <Route path="/form/main_note" element={<><ProtectedPage /><MainNoteForm onReturn={() => navigate("/dashboard")} /></>} />
+        <Route path="/form/monthly_summary" element={<><ProtectedPage /><MonthlySummaryForm onReturn={() => navigate("/dashboard")} /></>} /> {/* ✅ NEW ROUTE */}
         <Route path="/myforms" element={<MyForms onReturn={() => navigate("/dashboard")} />} />
         <Route path="/invoice" element={<InvoiceTable />} />
         <Route path="/clients" element={<ClientManager onReturn={() => navigate("/dashboard")} />} />
         <Route path="/referrals" element={<ReferralList />} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
         <Route path="/referrals/upload" element={<ReferralUploadForm />} />
         <Route path="/Invoices" element={<MyInvoices />} />
         <Route path="/infield-note/new" element={<InfieldNoteForm />} />
         <Route path="/infield-notes/mine" element={<MyInfieldNotes />} />
-
-
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </Layout>
   );

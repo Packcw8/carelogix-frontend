@@ -30,6 +30,13 @@ export default function Dashboard({ onLogout, user }) {
           onClick={() => navigate("/form/main_note")}
         />
         <Card
+          icon="📅"
+          title="Monthly Summary"
+          description="Compile a monthly visit report"
+          onClick={() => navigate("/form/monthly_summary")}
+          background="bg-indigo-100"
+        />
+        <Card
           icon="📓"
           title="Infield Note"
           description="Write a field observation"
