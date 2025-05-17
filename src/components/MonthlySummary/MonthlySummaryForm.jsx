@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { submitForm } from "../VisitForm/submitForm";
+import { submitMonthlySummary } from "./submitMonthlySummary";
 import MonthlyClientInfo from "./MonthlyClientInfo";
 import MonthlyServiceDetails from "./MonthlyServiceDetails";
 import MonthlyReview from "./MonthlyReview";
@@ -51,15 +51,7 @@ export default function MonthlySummaryForm({ onReturn }) {
     const confirm = window.confirm("Submit Monthly Summary?");
     if (!confirm) return;
 
-    await submitForm({
-      formData: {
-        ...finalData,
-        service_date: finalData.service_month || new Date().toISOString().split("T")[0]
-      },
-      segments: [],
-      templateName: "monthlysummary.docx",
-      formType: "Monthly Summary",
-    });
+    await submitMonthlySummary({ formData: finalData });
 
     toast.success("Monthly Summary saved!", {
       position: "top-right",
