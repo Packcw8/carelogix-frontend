@@ -18,7 +18,7 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
 
     try {
       const data = await fetchClientSummaries(formData.case_name, formData.service_month);
-      console.log("📥 Summary API Response:", data);
+      console.log("📥 Summary API Response:", JSON.stringify(data, null, 2));
 
       setFormData({
         ...formData,
