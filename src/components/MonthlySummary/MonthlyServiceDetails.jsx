@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchClientSummaries } from "./fetchClientSummaries"; // adjust path if needed
+import { fetchClientSummaries } from "./fetchClientSummaries"; // Adjust path if needed
 
 export default function MonthlyServiceDetails({ formData, setFormData, onNext, onBack }) {
   const handleChange = (e) => {
@@ -8,12 +8,18 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
 
   const handleLoadSummaries = async () => {
     if (!formData.case_name || !formData.service_month) {
-      alert("❌ Please select both client and service month before loading.");
+      alert("❌ Please select both a client and service month.");
       return;
     }
 
+    // 🧠 DEBUGGING OUTPUT
+    console.log("📤 Client Name:", formData.case_name);
+    console.log("📤 Service Month:", formData.service_month);
+
     try {
       const data = await fetchClientSummaries(formData.case_name, formData.service_month);
+      console.log("📥 Summary API Response:", data);
+
       setFormData({
         ...formData,
         summaries: data.summaries.join("\n\n"),
@@ -21,10 +27,11 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
         participants: data.participants.join(", "),
         mileage: data.mileage,
       });
-      alert("✅ Summaries and service details loaded!");
+
+      alert(`✅ Loaded ${data.summaries.length} summaries.`);
     } catch (error) {
-      alert("❌ Failed to load summaries.");
-      console.error(error);
+      alert("❌ Failed to load data from the server.");
+      console.error("Fetch error:", error);
     }
   };
 
@@ -40,8 +47,8 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
 
       <button
         type="button"
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         onClick={handleLoadSummaries}
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
       >
         🔄 Load Previous Visit Data
       </button>
@@ -98,13 +105,13 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
         <button
           type="button"
           onClick={onBack}
-          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+          className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
         >
           ← Back
         </button>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
         >
           Continue →
         </button>
