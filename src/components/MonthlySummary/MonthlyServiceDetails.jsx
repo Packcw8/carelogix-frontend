@@ -1,8 +1,31 @@
 import React from "react";
+import { fetchClientSummaries } from "./fetchClientSummaries"; // adjust path if needed
 
 export default function MonthlyServiceDetails({ formData, setFormData, onNext, onBack }) {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLoadSummaries = async () => {
+    if (!formData.case_name || !formData.service_month) {
+      alert("❌ Please select both client and service month before loading.");
+      return;
+    }
+
+    try {
+      const data = await fetchClientSummaries(formData.case_name, formData.service_month);
+      setFormData({
+        ...formData,
+        summaries: data.summaries.join("\n\n"),
+        service_dates: data.service_dates.join(", "),
+        participants: data.participants.join(", "),
+        mileage: data.mileage,
+      });
+      alert("✅ Summaries and service details loaded!");
+    } catch (error) {
+      alert("❌ Failed to load summaries.");
+      console.error(error);
+    }
   };
 
   return (
@@ -14,6 +37,14 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
       className="space-y-4"
     >
       <h2 className="text-xl font-semibold">Step 2: Service Details</h2>
+
+      <button
+        type="button"
+        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        onClick={handleLoadSummaries}
+      >
+        🔄 Load Previous Visit Data
+      </button>
 
       <div>
         <label className="block font-medium">Service Dates</label>
@@ -67,15 +98,15 @@ export default function MonthlyServiceDetails({ formData, setFormData, onNext, o
         <button
           type="button"
           onClick={onBack}
-          className="bg-gray-400 text-white px-4 py-2 rounded"
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
         >
-          Back
+          ← Back
         </button>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Continue
+          Continue →
         </button>
       </div>
     </form>
